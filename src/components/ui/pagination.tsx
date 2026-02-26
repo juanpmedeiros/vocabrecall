@@ -6,6 +6,7 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
+
 export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   const getPageNumbers = () => {
     const pages = [];
