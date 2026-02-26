@@ -146,10 +146,21 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 - Movido de `src/components/AddWordModal.tsx` para `src/components/lesson/AddWordModal.tsx`. Nenhum import existia; uso futuro: `@/components/lesson/AddWordModal`.
 
+### 6. Props removidas por componente
+
+| Componente | Props removidas | Passa a consumir do Context |
+|------------|------------------|------------------------------|
+| **LessonCard** | onEdit, onDelete, onView | deleteLesson(), selectLesson() |
+| **LessonDetailModal** | isOpen, onClose, lesson | selectedLesson, selectLesson(null), formatLessonDate() |
+| **CreateLessonModal** | isOpen, onClose | showCreateModal, toggleCreateModal(), addLesson() |
+| **StatsPanel** | lessonsCount, wordsCount | lessons.length, getTotalWords() |
+| **VocabReminder** | phrases | vocabPhrases |
+| **Pagination** | currentPage, totalPages, onPageChange | currentPage, getTotalPages(itemsPerPage), setCurrentPage() |
+
 ### Regras
 
 - Nenhum visual alterado; apenas a origem dos dados mudou.
-- `useVocabRecall()` é o único ponto de acesso ao contexto.
+- `useVocabRecall()` é o único ponto de acesso ao Context; nenhum componente importa o Context diretamente (apenas o hook em `useVocabRecall.ts` usa `useContext(VocabRecallContext)`).
 
 ### Build
 
@@ -157,4 +168,48 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 ---
 
-**Última atualização:** PROMPT 3 concluído. Aguardando "Próximo" para avançar.
+## PROMPT 4 — Modais com Validação e Feedback Visual
+
+**Status:** Concluído
+
+### 1. Sistema de Toast
+
+- **`src/components/ui/Toast.tsx`** — Componente de notificação no canto inferior direito; tipos `success` (verde) e `error` (vermelho); animação fade in/out; tokens do design system (`--color-primary`, `--bg-page`, `--color-error`, `--color-success`).
+- **`src/contexts/ToastContext.tsx`** — Provider com estado `toasts[]`, `showToast(message, type)`, `removeToast(id)`, auto-dismiss 3000 ms; container fixo que renderiza os toasts.
+- **`src/hooks/useToast.ts`** — Reexporta `useToast` do ToastContext para uso via `@/hooks/useToast`.
+
+**Decisão sobre useToast:** O hook foi colocado em um **contexto próprio (ToastContext)** e exposto em `src/hooks/useToast.ts`. Não foi integrado ao VocabRecallContext para manter o contexto de domínio focado apenas em estado de negócio; toasts são UI/feedback transversal e podem ser usados em qualquer parte da árvore sem acoplar ao vocabulário.
+
+### 2. Tokens de erro/sucesso
+
+- **`src/styles/theme.css`** — Em `:root`: `--error: var(--destructive)`, `--success: #16a34a`. Em `@theme`: `--color-error`, `--color-success`. Uso de `text-destructive`, `border-destructive` para erros de validação.
+
+### 3. CreateLessonModal — Validação
+
+- **Título:** obrigatório, mínimo 3 caracteres; erro: "O título deve ter pelo menos 3 caracteres".
+- **Categoria:** obrigatória; erro: "Selecione uma categoria".
+- **Palavras:** pelo menos 1; cada palavra com `word` e `translation` preenchidos; erros por palavra e geral: "Palavra e tradução são obrigatórias" / "Adicione pelo menos uma palavra à lição".
+- Erros abaixo do campo em vermelho (`text-destructive`), borda vermelha (`border-destructive`); validação em tempo real (erro some ao corrigir).
+- Submit válido: `addLesson()`, reset do formulário, `toggleCreateModal()`, toast "Lição criada com sucesso! ✓" (success).
+- Fechar/cancelar: limpa formulário e erros, fecha modal.
+
+### 4. LessonDetailModal — Ações com feedback
+
+- **Delete:** Diálogo de confirmação inline (sem `window.confirm`): "Tem certeza que deseja excluir esta lição?" com botões "Cancelar" e "Excluir". Ao confirmar: `deleteLesson(lesson.id)`, `selectLesson(null)`, toast "Lição excluída" (success).
+- **Edit:** Não existe no modal (apenas no LessonCard com `console.log`). **TODO** documentado: implementar edição no modal com as mesmas validações do CreateLessonModal e toast "Lição atualizada com sucesso! ✓".
+
+### 5. AddWordModal — Validação
+
+- **`src/components/lesson/AddWordModal.tsx`** — Campos "word" e "translation" obrigatórios (mínimo 1 caractere); "context" opcional. Mesmo padrão visual de erro (borda e texto em vermelho com token). Toast "Palavra adicionada! ✓" (success) ao salvar com sucesso. Cancelar/fechar limpa formulário e erros.
+
+### 6. Regras respeitadas
+
+- Nenhum `alert()` ou `window.confirm()`; toasts não bloqueiam a interface; textos de erro em português; tokens de cor para erro; estados de validação locais aos modais.
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+**Última atualização:** PROMPT 4 concluído. Aguardando "Próximo" para avançar.

@@ -1,14 +1,17 @@
-import { X, BookOpen, Calendar, ChevronLeft, ChevronRight } from 'lucide-react';
+import { X, BookOpen, Calendar, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { getCategoryBadgeStyle } from '@/constants/categories';
+import { useToast } from '@/hooks/useToast';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
 import type { Word } from '@/types';
 
 export function LessonDetailModal() {
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [showTranslation, setShowTranslation] = useState(false);
-  const { selectedLesson, selectLesson, formatLessonDate } = useVocabRecall();
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const { selectedLesson, selectLesson, deleteLesson, formatLessonDate } = useVocabRecall();
+  const { showToast } = useToast();
 
   if (!selectedLesson || !selectedLesson.words || selectedLesson.words.length === 0) {
     return null;
@@ -35,7 +38,15 @@ export function LessonDetailModal() {
   const handleClose = () => {
     setCurrentWordIndex(0);
     setShowTranslation(false);
+    setShowDeleteConfirm(false);
     selectLesson(null);
+  };
+
+  const handleConfirmDelete = () => {
+    deleteLesson(lesson.id);
+    setShowDeleteConfirm(false);
+    selectLesson(null);
+    showToast('Lição excluída', 'success');
   };
 
   return (
@@ -74,13 +85,52 @@ export function LessonDetailModal() {
                 <span>{lesson.words.length} words in this lesson</span>
               </div>
             </div>
-            <button
-              onClick={handleClose}
-              className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
-            >
-              <X size={20} />
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setShowDeleteConfirm(true)}
+                className="text-gray-400 hover:text-destructive hover:bg-destructive/10 rounded-lg p-1.5 transition-colors"
+                title="Excluir lição"
+              >
+                <Trash2 size={20} />
+              </button>
+              <button
+                onClick={handleClose}
+                className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
+              >
+                <X size={20} />
+              </button>
+            </div>
           </div>
+
+          {showDeleteConfirm && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center rounded-2xl bg-black/40 p-4">
+              <div
+                className="bg-white rounded-xl shadow-xl border border-gray-200 p-6 max-w-sm w-full"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <p className="text-gray-900 font-medium mb-4">
+                  Tem certeza que deseja excluir esta lição?
+                </p>
+                <div className="flex justify-end gap-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowDeleteConfirm(false)}
+                    className="px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-100 rounded-lg transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button
+                    type="button"
+                    onClick={handleConfirmDelete}
+                    className="px-4 py-2 text-sm font-medium text-white bg-destructive hover:bg-destructive/90 rounded-lg transition-colors"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <div className="p-8">
             <div className="bg-gradient-to-br from-gray-50 to-gray-100 rounded-2xl p-8 min-h-[300px] flex flex-col justify-center items-center border-2 border-gray-200 shadow-inner">

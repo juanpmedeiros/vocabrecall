@@ -26,6 +26,9 @@
   --accent-foreground: #030213;
   --destructive: #d4183d;
   --destructive-foreground: #ffffff;
+  /* Validation / feedback (PROMPT 4) */
+  --error: var(--destructive);
+  --success: #16a34a;
   --border: rgba(0, 0, 0, 0.1);
   --input: transparent;
   --input-background: #f3f3f5;
@@ -103,6 +106,8 @@
   --color-accent-foreground: var(--accent-foreground);
   --color-destructive: var(--destructive);
   --color-destructive-foreground: var(--destructive-foreground);
+  --color-error: var(--error);
+  --color-success: var(--success);
   --color-border: var(--border);
   --color-input: var(--input);
   --color-input-background: var(--input-background);

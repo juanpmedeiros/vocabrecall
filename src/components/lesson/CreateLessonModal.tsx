@@ -1,17 +1,47 @@
 import { X, Plus, Sparkles, Settings, Edit2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import { useToast } from '@/hooks/useToast';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
 import type { Category } from '@/types';
 
+const TITLE_MIN_LENGTH = 3;
+
+function getTitleError(value: string): string {
+  if (!value.trim()) return 'O título deve ter pelo menos 3 caracteres';
+  if (value.trim().length < TITLE_MIN_LENGTH) return 'O título deve ter pelo menos 3 caracteres';
+  return '';
+}
+
+function getCategoryError(value: string): string {
+  if (!value || !value.trim()) return 'Selecione uma categoria';
+  return '';
+}
+
+function getWordError(word: { word: string; translation: string }): string {
+  const hasWord = word.word.trim().length > 0;
+  const hasTranslation = word.translation.trim().length > 0;
+  if (hasWord && !hasTranslation) return 'Palavra e tradução são obrigatórias';
+  if (!hasWord && hasTranslation) return 'Palavra e tradução são obrigatórias';
+  return '';
+}
+
 export function CreateLessonModal() {
   const { showCreateModal, toggleCreateModal, addLesson } = useVocabRecall();
+  const { showToast } = useToast();
 
   const [lessonTitle, setLessonTitle] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState<Category>('business');
+  const [selectedCategory, setSelectedCategory] = useState<Category | ''>('');
   const [words, setWords] = useState<Array<{ word: string; translation: string; context: string }>>([
     { word: '', translation: '', context: '' },
   ]);
+
+  const [errors, setErrors] = useState<{
+    title?: string;
+    category?: string;
+    words?: string;
+    wordByIndex?: Record<number, string>;
+  }>({});
 
   const [categories, setCategories] = useState([
     'Food',
@@ -29,12 +59,22 @@ export function CreateLessonModal() {
 
   const addWordField = () => {
     setWords([...words, { word: '', translation: '', context: '' }]);
+    setErrors((e) => ({ ...e, words: undefined, wordByIndex: undefined }));
   };
 
   const updateWord = (index: number, field: 'word' | 'translation' | 'context', value: string) => {
     setWords((prev) => {
       const next = [...prev];
       next[index] = { ...next[index], [field]: value };
+      return next;
+    });
+    setErrors((e) => {
+      const next = { ...e };
+      if (next.wordByIndex) {
+        const nextByIndex = { ...next.wordByIndex };
+        delete nextByIndex[index];
+        next.wordByIndex = Object.keys(nextByIndex).length ? nextByIndex : undefined;
+      }
       return next;
     });
   };
@@ -70,20 +110,61 @@ export function CreateLessonModal() {
     setEditingValue('');
   };
 
+  const resetForm = () => {
+    setLessonTitle('');
+    setSelectedCategory('business');
+    setWords([{ word: '', translation: '', context: '' }]);
+    setErrors({});
+  };
+
   const handleClose = () => {
+    resetForm();
     toggleCreateModal();
   };
 
+  const handleTitleChange = (value: string) => {
+    setLessonTitle(value);
+    setErrors((e) => ({ ...e, title: getTitleError(value) || undefined }));
+  };
+
+  const handleCategoryChange = (value: string) => {
+    setSelectedCategory(value as Category | '');
+    setErrors((e) => ({ ...e, category: getCategoryError(value) || undefined }));
+  };
+
   const handleCreate = () => {
+    const titleError = getTitleError(lessonTitle);
+    const categoryError = getCategoryError(selectedCategory);
     const validWords = words
-      .filter((w) => w.word.trim())
+      .filter((w) => w.word.trim() || w.translation.trim())
       .map((w) => ({
         word: w.word.trim(),
         translation: w.translation.trim(),
         context: w.context.trim() || undefined,
       }));
-    if (!lessonTitle.trim() || validWords.length === 0) return;
-    const category = selectedCategory.toLowerCase() as Category;
+
+    const wordByIndex: Record<number, string> = {};
+    words.forEach((w, i) => {
+      const err = getWordError(w);
+      if (err) wordByIndex[i] = err;
+    });
+
+    const wordsGeneralError =
+      validWords.length === 0 ? 'Adicione pelo menos uma palavra à lição' : undefined;
+
+    const hasWordErrors = Object.keys(wordByIndex).length > 0;
+
+    if (titleError || categoryError || wordsGeneralError || hasWordErrors) {
+      setErrors({
+        title: titleError || undefined,
+        category: categoryError || undefined,
+        words: wordsGeneralError,
+        wordByIndex: hasWordErrors ? wordByIndex : undefined,
+      });
+      return;
+    }
+
+    const category = (selectedCategory as Category).toLowerCase() as Category;
     addLesson({
       title: lessonTitle.trim(),
       date: new Date().toISOString().slice(0, 10),
@@ -91,7 +172,9 @@ export function CreateLessonModal() {
       category,
       words: validWords,
     });
+    resetForm();
     toggleCreateModal();
+    showToast('Lição criada com sucesso! ✓', 'success');
   };
 
   return (
@@ -142,9 +225,14 @@ export function CreateLessonModal() {
                     id="lessonTitle"
                     placeholder="e.g., Business English - Meeting Vocabulary"
                     value={lessonTitle}
-                    onChange={(e) => setLessonTitle(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300"
+                    onChange={(e) => handleTitleChange(e.target.value)}
+                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300 ${
+                      errors.title ? 'border-destructive' : 'border-gray-200'
+                    }`}
                   />
+                  {errors.title && (
+                    <p className="mt-1 text-sm text-destructive">{errors.title}</p>
+                  )}
                 </div>
 
                 <div>
@@ -155,8 +243,10 @@ export function CreateLessonModal() {
                     <select
                       id="category"
                       value={selectedCategory}
-                      onChange={(e) => setSelectedCategory(e.target.value as Category)}
-                      className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300 bg-gray-50 focus:bg-white"
+                      onChange={(e) => handleCategoryChange(e.target.value)}
+                      className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-gray-50 focus:bg-white ${
+                        errors.category ? 'border-destructive' : 'border-gray-200 hover:border-gray-300'
+                      }`}
                     >
                       <option value="">Select a category</option>
                       {categories.map((cat, index) => (
@@ -176,6 +266,9 @@ export function CreateLessonModal() {
                       <Settings size={18} />
                     </button>
                   </div>
+                  {errors.category && (
+                    <p className="mt-1 text-sm text-destructive">{errors.category}</p>
+                  )}
 
                   {showCategoryManager && (
                     <div className="mt-3 bg-gray-50 rounded-xl p-4 border border-gray-200">
@@ -257,6 +350,9 @@ export function CreateLessonModal() {
 
               <div className="border-t border-gray-200 pt-6">
                 <h3 className="text-sm font-semibold text-gray-700 mb-4">Add Words to this Lesson</h3>
+                {errors.words && (
+                  <p className="mb-2 text-sm text-destructive">{errors.words}</p>
+                )}
                 <div className="space-y-4">
                   {words.map((word, index) => (
                     <div key={index} className="bg-gray-50 rounded-xl p-4 space-y-3">
@@ -271,19 +367,28 @@ export function CreateLessonModal() {
                           </button>
                         )}
                       </div>
-                      <input
-                        type="text"
-                        placeholder="Word in English"
-                        value={word.word}
-                        onChange={(e) => updateWord(index, 'word', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white"
-                      />
+                      <div>
+                        <input
+                          type="text"
+                          placeholder="Word in English"
+                          value={word.word}
+                          onChange={(e) => updateWord(index, 'word', e.target.value)}
+                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white ${
+                            errors.wordByIndex?.[index] ? 'border-destructive' : 'border-gray-200'
+                          }`}
+                        />
+                        {errors.wordByIndex?.[index] && (
+                          <p className="mt-1 text-xs text-destructive">{errors.wordByIndex[index]}</p>
+                        )}
+                      </div>
                       <input
                         type="text"
                         placeholder="Translation (PT-BR)"
                         value={word.translation}
                         onChange={(e) => updateWord(index, 'translation', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white"
+                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white ${
+                          errors.wordByIndex?.[index] ? 'border-destructive' : 'border-gray-200'
+                        }`}
                       />
                       <textarea
                         rows={2}

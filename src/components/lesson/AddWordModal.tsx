@@ -1,5 +1,7 @@
 import { X, Upload, Sparkles } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useState } from 'react';
+import { useToast } from '@/hooks/useToast';
 
 interface AddWordModalProps {
   isOpen: boolean;
@@ -7,6 +9,50 @@ interface AddWordModalProps {
 }
 
 export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
+  const { showToast } = useToast();
+  const [word, setWord] = useState('');
+  const [translation, setTranslation] = useState('');
+  const [context, setContext] = useState('');
+  const [errors, setErrors] = useState<{ word?: string; translation?: string }>({});
+
+  const resetForm = () => {
+    setWord('');
+    setTranslation('');
+    setContext('');
+    setErrors({});
+  };
+
+  const handleClose = () => {
+    resetForm();
+    onClose();
+  };
+
+  const handleWordChange = (value: string) => {
+    setWord(value);
+    setErrors((e) => ({ ...e, word: value.trim().length === 0 ? 'Campo obrigatório' : undefined }));
+  };
+
+  const handleTranslationChange = (value: string) => {
+    setTranslation(value);
+    setErrors((e) => ({ ...e, translation: value.trim().length === 0 ? 'Campo obrigatório' : undefined }));
+  };
+
+  const handleSave = () => {
+    const wordTrim = word.trim();
+    const translationTrim = translation.trim();
+    const wordError = wordTrim.length === 0 ? 'Campo obrigatório' : undefined;
+    const translationError = translationTrim.length === 0 ? 'Campo obrigatório' : undefined;
+
+    if (wordError || translationError) {
+      setErrors({ word: wordError, translation: translationError });
+      return;
+    }
+
+    showToast('Palavra adicionada! ✓', 'success');
+    resetForm();
+    onClose();
+  };
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -17,7 +63,7 @@ export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/50 backdrop-blur-md"
-            onClick={onClose}
+            onClick={handleClose}
           ></motion.div>
 
           <motion.div
@@ -37,7 +83,7 @@ export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
                 <h2 className="text-xl font-bold text-gray-900">New Word</h2>
               </div>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
               >
                 <X size={20} />
@@ -51,7 +97,7 @@ export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
                 </label>
                 <select
                   id="category"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all hover:border-gray-300 bg-gray-50 focus:bg-white"
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300 bg-gray-50 focus:bg-white"
                 >
                   <option value="">Select a category</option>
                   <option value="food">🍽️ Food</option>
@@ -71,8 +117,15 @@ export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
                   type="text"
                   id="word"
                   placeholder="e.g., Serendipity"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                  value={word}
+                  onChange={(e) => handleWordChange(e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${
+                    errors.word ? 'border-destructive' : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 />
+                {errors.word && (
+                  <p className="mt-1 text-sm text-destructive">{errors.word}</p>
+                )}
               </div>
 
               <div>
@@ -83,7 +136,9 @@ export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
                   id="context"
                   rows={3}
                   placeholder="Write a sentence using this word..."
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all resize-none hover:border-gray-300"
+                  value={context}
+                  onChange={(e) => setContext(e.target.value)}
+                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none hover:border-gray-300"
                 />
               </div>
 
@@ -108,20 +163,27 @@ export function AddWordModal({ isOpen, onClose }: AddWordModalProps) {
                   type="text"
                   id="translation"
                   placeholder="Tradução em português"
-                  className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500 outline-none transition-all hover:border-gray-300"
+                  value={translation}
+                  onChange={(e) => handleTranslationChange(e.target.value)}
+                  className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all ${
+                    errors.translation ? 'border-destructive' : 'border-gray-200 hover:border-gray-300'
+                  }`}
                 />
+                {errors.translation && (
+                  <p className="mt-1 text-sm text-destructive">{errors.translation}</p>
+                )}
               </div>
             </div>
 
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 bg-gradient-to-b from-transparent to-gray-50/50">
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl transition-all"
               >
                 Cancel
               </button>
               <button
-                onClick={onClose}
+                onClick={handleSave}
                 className="px-6 py-2.5 text-sm font-semibold text-white bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 rounded-xl transition-all shadow-lg shadow-blue-500/30 hover:shadow-xl hover:shadow-blue-500/40 hover:scale-105"
               >
                 Save Word
