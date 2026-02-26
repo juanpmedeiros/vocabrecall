@@ -1,9 +1,10 @@
 /**
- * Toast notification item (PROMPT 4).
- * Bottom-right, success (green) / error (red), fade in/out, design tokens.
+ * Toast notification item (PROMPT 4 + PROMPT 7).
+ * Enter: translateX(100%)→0 + opacity 0→1 (300ms ease-out).
+ * Exit: translateX(0)→100% + opacity 1→0 (250ms ease-in); removed from DOM after exit.
  */
 
-import { motion, AnimatePresence } from 'motion/react';
+import { motion } from 'motion/react';
 
 interface ToastProps {
   id: string;
@@ -17,10 +18,13 @@ export function Toast({ message, type }: ToastProps) {
 
   return (
     <motion.div
-      initial={{ opacity: 0, y: 8 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, y: 8 }}
-      transition={{ duration: 0.2 }}
+      initial={{ x: '100%', opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: '100%', opacity: 0 }}
+      transition={{
+        enter: { duration: 0.3, ease: [0, 0, 0.2, 1] },
+        exit: { duration: 0.25, ease: [0.4, 0, 1, 1] },
+      }}
       className={`
         pointer-events-auto min-w-[280px] max-w-sm rounded-xl border px-4 py-3 shadow-lg
         ${isSuccess ? 'border-success/30 bg-success/10 text-success' : 'border-destructive/30 bg-destructive/10 text-destructive'}

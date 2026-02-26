@@ -17,9 +17,9 @@ export function VocabReminder() {
           <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center">
             <Lightbulb size={18} className="text-white" />
           </div>
-          <h3 className="font-bold text-gray-900">Vocab Reminder</h3>
+          <h3 className="font-bold text-gray-900">Lembrete de vocabulário</h3>
         </div>
-        <p className="text-sm text-gray-500 italic">Start learning to see reminders here!</p>
+        <p className="text-sm text-gray-500 italic">Comece a estudar para ver lembretes aqui!</p>
       </div>
     );
   }
@@ -33,12 +33,14 @@ export function VocabReminder() {
           <div className="w-9 h-9 bg-amber-500 rounded-lg flex items-center justify-center">
             <Lightbulb size={18} className="text-white" />
           </div>
-          <h3 className="font-bold text-gray-900">Vocab Reminder</h3>
+          <h3 className="font-bold text-gray-900">Lembrete de vocabulário</h3>
         </div>
         <button
+          type="button"
           onClick={handleNext}
           className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg p-2 transition-all"
-          title="Next phrase"
+          aria-label="Próxima frase"
+          title="Próxima frase"
         >
           <RefreshCw size={16} />
         </button>

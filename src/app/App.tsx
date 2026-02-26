@@ -1,4 +1,5 @@
 import { Search, Plus, Sparkles, LayoutGrid } from 'lucide-react';
+import { motion, AnimatePresence } from 'motion/react';
 import { LessonCard } from '@/components/lesson/LessonCard';
 import { StatsPanel } from '@/components/layout/StatsPanel';
 import { VocabReminder } from '@/components/layout/VocabReminder';
@@ -45,10 +46,10 @@ export default function App() {
               </div>
               <button
                 onClick={toggleCreateModal}
-                className="flex md:hidden items-center gap-2 px-4 py-2.5 min-h-[44px] min-w-[44px] bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md"
+                className="btn-primary-hover flex md:hidden items-center gap-2 px-4 py-2.5 min-h-[44px] min-w-[44px] bg-primary text-white font-medium rounded-xl hover:bg-primary-dark shadow-md hover:scale-[1.03] transition-transform duration-200"
               >
                 <Plus size={18} strokeWidth={2.5} />
-                New Lesson
+                Nova lição
               </button>
             </div>
 
@@ -57,19 +58,20 @@ export default function App() {
                 <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors pointer-events-none" size={18} />
                 <input
                   type="text"
-                  placeholder="Search lessons or words..."
+                  placeholder="Buscar lições ou palavras..."
+                  aria-label="Buscar lições ou palavras"
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
-                  className="w-full pl-11 pr-4 py-2.5 min-h-[44px] text-base md:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
+                  className="w-full pl-11 pr-4 py-2.5 min-h-[44px] text-base md:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-[border-color,box-shadow] duration-200"
                 />
               </div>
               <button
                 onClick={toggleCreateModal}
-                className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md hover:shadow-lg hover:scale-105 duration-200 min-h-[44px]"
+                className="btn-primary-hover hidden md:flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark shadow-md min-h-[44px] hover:scale-[1.03] transition-transform duration-200"
               >
                 <Plus size={18} strokeWidth={2.5} />
-                New Lesson
+                Nova lição
               </button>
             </div>
           </div>
@@ -83,30 +85,44 @@ export default function App() {
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
                 <LayoutGrid size={24} className="text-gray-700 shrink-0" />
-                <h2 className="text-xl md:text-2xl font-bold text-gray-900">My Lessons</h2>
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">Minhas lições</h2>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 {searchText.trim() ? (
                   <span className="font-medium">
-                    {filteredLessons.length} {filteredLessons.length === 1 ? 'result' : 'results'} found
+                    {filteredLessons.length} {filteredLessons.length === 1 ? 'resultado' : 'resultados'}
                   </span>
                 ) : (
-                  <span className="font-medium">{lessons.length} lessons</span>
+                  <span className="font-medium">{lessons.length} lições</span>
                 )}
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {currentLessons.map((lesson) => (
-                <LessonCard
-                  key={lesson.id}
-                  id={lesson.id}
-                  title={lesson.title}
-                  date={formatLessonDate(lesson.date)}
-                  wordsCount={lesson.wordsCount}
-                  category={lesson.category}
-                />
-              ))}
+              <AnimatePresence mode="popLayout">
+                {currentLessons.map((lesson, index) => (
+                  <motion.div
+                    key={lesson.id}
+                    layout
+                    initial={{ opacity: 0, y: 12 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, transition: { duration: 0.15 } }}
+                    transition={{
+                      duration: 0.3,
+                      ease: [0, 0, 0.2, 1],
+                      delay: Math.min(index * 0.05, 0.4),
+                    }}
+                  >
+                    <LessonCard
+                      id={lesson.id}
+                      title={lesson.title}
+                      date={formatLessonDate(lesson.date)}
+                      wordsCount={lesson.wordsCount}
+                      category={lesson.category}
+                    />
+                  </motion.div>
+                ))}
+              </AnimatePresence>
             </div>
 
             {totalPages > 1 && <Pagination />}
@@ -116,13 +132,15 @@ export default function App() {
                 <div className="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-4">
                   <Search className="text-gray-400" size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No results found</h3>
-                <p className="text-gray-500 mb-6">Try searching with different keywords</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  Nenhuma lição encontrada para &quot;{searchText.trim()}&quot;
+                </h3>
+                <p className="text-gray-500 mb-6">Tente buscar com outros termos.</p>
                 <button
                   onClick={() => setSearchText('')}
                   className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all"
                 >
-                  Clear Search
+                  Limpar busca
                 </button>
               </div>
             )}
@@ -132,14 +150,14 @@ export default function App() {
                 <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center mx-auto mb-4">
                   <Sparkles className="text-white" size={32} />
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-2">No lessons yet</h3>
-                <p className="text-gray-500 mb-6">Create your first lesson to start learning!</p>
+                <h3 className="text-xl font-bold text-gray-900 mb-2">Nenhuma lição encontrada</h3>
+                <p className="text-gray-500 mb-6">Crie sua primeira lição para começar a estudar!</p>
                 <button
                   onClick={toggleCreateModal}
                   className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md"
                 >
                   <Plus size={18} />
-                  Create Lesson
+                  Criar primeira lição
                 </button>
               </div>
             )}

@@ -304,4 +304,92 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 ---
 
-**Última atualização:** PROMPT 6 concluído. Aguardando "Próximo" para avançar.
+## PROMPT 7 — Animações e Transições Globais
+
+**Status:** Concluído
+
+### 1. Configuração base (`src/styles/animations.css`)
+
+- **Variáveis:** `--duration-fast` (150ms), `--duration-normal` (250ms), `--duration-slow` (400ms), `--duration-slower` (600ms), `--easing-out`, `--easing-in-out`.
+- **Keyframes:** `fadeIn`, `fadeOut`, `slideUp`, `slideDown`, `flipCard`, `pulse`, `scaleIn`, `shimmer`.
+- **Classes utilitárias:** `.animate-fade-in`, `.animate-fade-out`, `.animate-slide-up`, `.animate-slide-down`, `.animate-scale-in`; hover: `.hover-lift`, `.btn-primary-hover`, `.btn-secondary-hover`, `.badge-hover`, `.badge-icon-hover`.
+- **Skeleton shimmer:** `.skeleton-shimmer` (gradiente 1500ms infinito).
+- **prefers-reduced-motion:** no final do arquivo, `@media (prefers-reduced-motion: reduce)` aplica `animation-duration: 0.01ms !important` e `transition-duration: 0.01ms !important` a `*, *::before, *::after`. Importado em `src/styles/index.css`.
+
+### 2. Animações por componente
+
+| Componente | Animações implementadas |
+|------------|--------------------------|
+| **Lista (LessonCard)** | Entrada: fade-in + slide-up (300ms ease-out), stagger 50ms por card (máx. 400ms) via `motion.div` + `AnimatePresence` no App. Saída: opacity 0 (150ms) ao trocar página/filtro. Hover: `.hover-lift` (translateY -4px + sombra 250ms), badge `.badge-hover` (scale 1.05), botão secundário `.btn-secondary-hover`. |
+| **Header** | Botões "New Lesson": `.btn-primary-hover` + scale 1.03 ao hover (200ms). Input de busca: transição borda/focus 200ms. |
+| **Modais (CreateLesson, LessonDetail)** | Overlay: opacity 0→0.5 (200ms). Modal desktop: opacity 0→1 + scale 0.95→1 (250ms); saída 200ms. Mobile (useIsMobile): entrada translateY(100%)→0 (300ms ease-out), saída translateY(0)→100% (250ms ease-in). Container com `items-end md:items-center` para alinhar modal fullscreen na base no mobile. |
+| **StudyCard** | Flip: 400ms cubic-bezier(0.4, 0, 0.2, 1); perspective 1000px; backface-visibility nos lados. Ao marcar "Já sei" / "Revisar": card atual sai com translateX ±100% + fade (300ms), próximo entra do lado oposto (300ms); `displayIndex` + handlers atrasados (setTimeout 300ms) para sync com hook. Barra de progresso: `transition: width 600ms ease-out`. Badge categoria: `.badge-icon-hover` (rotate 360deg 400ms). Navegação: `active:scale-[0.98]`. |
+| **Toasts** | Entrada: translateX(100%)→0 + opacity 0→1 (300ms ease-out). Saída: translateX(0)→100% + opacity 1→0 (250ms ease-in). Lista envolvida em `AnimatePresence` no ToastContext; remoção do array após 3s (exit é executado pelo Motion antes de desmontar). |
+| **StatsPanel** | Números (lições e palavras) animam de 0 até o valor final no mount (800ms ease-out) via `useCountUp` (requestAnimationFrame + easing). Se `prefers-reduced-motion`: valor final exibido direto. |
+| **Pagination** | Botões: `active:scale-95` ao clicar (efeito de clique). |
+| **Skeleton (preparação futura)** | `src/components/ui/Skeleton.tsx`: componente genérico com `width`, `height`, `className`; shimmer via `.skeleton-shimmer`. Variantes `SkeletonCard` (tamanho LessonCard) e `SkeletonText`. Não integrado ao fluxo atual. |
+
+### 3. Cobertura prefers-reduced-motion
+
+- **CSS:** `animations.css` termina com bloco `@media (prefers-reduced-motion: reduce)` que reduz durações de animação e transição a 0.01ms em todos os elementos, efetivamente desligando animações puramente CSS.
+- **JS/React:** Animações via Framer Motion (motion/react) seguem as preferências do usuário quando o Motion está configurado para isso; o projeto não altera essa configuração. StatsPanel usa `useCountUp`, que consulta `matchMedia('(prefers-reduced-motion: reduce)')` e exibe o valor final sem animação quando a preferência está ativa.
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+## PROMPT 8 — Testes e Validação Final
+
+**Status:** Concluído
+
+### Bugs encontrados e correções
+
+| Item | Correção |
+|------|----------|
+| **Progresso do flashcard** | Fórmula de progress era `(currentIndex / totalWords) * 100`, resultando em 25% na 3ª carta de 8. Ajustado para `((currentIndex + 1) / totalWords) * 100` (3ª carta = 37,5%). |
+| **console.log em produção** | `LessonCard` chamava `console.log('Edit lesson:', id)` em `handleEdit`. Substituído por comentário TODO. |
+| **Lição sem palavras** | `LessonDetailModal` retornava `null` quando `words.length === 0`, sem feedback. Agora exibe o modal com mensagem "Esta lição não tem palavras ainda." e botão "Adicionar palavras". |
+| **Textos de UI em inglês** | Textos principais traduzidos para português: header (Nova lição, Buscar…, Minhas lições, resultados/lições), estados vazios (Nenhuma lição encontrada, Criar primeira lição), busca sem resultados (Nenhuma lição encontrada para "[termo]", Limpar busca), LessonCard (Ver lição, palavras, Editar título, Excluir), CreateLessonModal (Criar nova lição, Cancelar, Criar lição), StatsPanel (Seu progresso, Lições concluídas, Palavras aprendidas), VocabReminder (Lembrete de vocabulário, Próxima frase), Pagination (Página anterior, Próxima página, aria-label Paginação). |
+
+### Estados vazios e divisão por zero (Parte F)
+
+- **Lista vazia:** Mensagem "Nenhuma lição encontrada" e botão "Criar primeira lição" (já existiam; textos ajustados para PT).
+- **Busca sem resultados:** Mensagem "Nenhuma lição encontrada para '[termo]'" e botão "Limpar busca".
+- **Lição sem palavras:** Modal exibe mensagem amigável e botão "Adicionar palavras".
+- **Revisar palavras difíceis:** Botão já desabilitado com `title="Nenhuma palavra para revisar"` quando `unknownWords` está vazio.
+- **Divisão por zero:** `useStudySession` retorna `progress = 0` quando `totalWords === 0`. `getTotalPages` usa `Math.max(1, …)`, retornando 1 quando a lista filtrada está vazia.
+
+### Acessibilidade (Parte E)
+
+- **Modais:** `role="dialog"`, `aria-modal="true"`, `aria-labelledby` apontando para o título; `id` nos títulos.
+- **Botões só de ícone:** `aria-label` em fechar (CreateLesson, LessonDetail), Excluir lição, Fechar, Abrir menu (LessonCard), Próxima frase (VocabReminder), Página anterior / Próxima página (Pagination).
+- **Paginação:** Container com `<nav aria-label="Paginação">`.
+- **Busca:** `aria-label="Buscar lições ou palavras"`.
+- **Focus:** Elementos interativos com `focus:ring` (Tailwind/theme). Ordem de tabulação natural (header → lista → paginação).
+
+### Checklist de qualidade (Parte G)
+
+- **Hardcoded:** Cores em `theme.css` são tokens; componentes usam classes/tokens. Valores como `44px` (touch target) e `1000px` (perspective) mantidos por acessibilidade/design.
+- **Textos de UI:** Ajustados para português conforme lista acima.
+- **console.log:** Removido (substituído por TODO em LessonCard).
+- **Imports:** Organizados (React → libs → locais); sem arquivos não utilizados em `src/` para a aplicação principal.
+- **TypeScript:** Build sem erros; sem `any` injustificado.
+- **Build:** `npm run build` executado com sucesso.
+- **DOCUMENTATION.md:** Atualizado com PROMPT 8.
+
+### Validações de cálculo (Parte B)
+
+- Total de palavras: `countTotalWords(lessons)` soma `words.length` de todas as lições; exibido no StatsPanel.
+- Paginação: 12 lições, 6 por página → 2 páginas (getTotalPages e slice em getPaginatedLessons).
+- Progresso: 3ª carta de 8 = ((2+1)/8)*100 = 37,5%.
+- Filtro por categoria e busca com `normalizeSearch()` (acentos) já implementados no Context.
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+**Última atualização:** PROMPT 8 concluído. Aguardando "Próximo" para avançar.

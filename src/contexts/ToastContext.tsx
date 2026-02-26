@@ -4,6 +4,7 @@
  */
 
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react';
+import { AnimatePresence } from 'motion/react';
 import { Toast } from '@/components/ui/Toast';
 
 export type ToastType = 'success' | 'error';
@@ -40,15 +41,17 @@ export function ToastProvider({ children }: { children: ReactNode }) {
     <ToastContext.Provider value={{ showToast, removeToast }}>
       {children}
       <div className="fixed bottom-4 right-4 z-[100] flex flex-col gap-2 pointer-events-none">
-        {toasts.map((t) => (
-          <Toast
-            key={t.id}
-            id={t.id}
-            message={t.message}
-            type={t.type}
-            onDismiss={() => removeToast(t.id)}
-          />
-        ))}
+        <AnimatePresence>
+          {toasts.map((t) => (
+            <Toast
+              key={t.id}
+              id={t.id}
+              message={t.message}
+              type={t.type}
+              onDismiss={() => removeToast(t.id)}
+            />
+          ))}
+        </AnimatePresence>
       </div>
     </ToastContext.Provider>
   );

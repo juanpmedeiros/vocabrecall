@@ -1,9 +1,12 @@
 import { GraduationCap, BookMarked, TrendingUp } from 'lucide-react';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
+import { useCountUp } from '@/hooks/useCountUp';
 
 export function StatsPanel() {
   const { lessons, getTotalWords } = useVocabRecall();
   const wordsCount = getTotalWords();
+  const displayLessons = useCountUp(lessons.length, 800);
+  const displayWords = useCountUp(wordsCount, 800);
 
   return (
     <div className="bg-primary rounded-xl p-6 text-white shadow-lg">
@@ -11,7 +14,7 @@ export function StatsPanel() {
         <div className="w-10 h-10 bg-white/20 backdrop-blur-sm rounded-lg flex items-center justify-center">
           <TrendingUp size={20} />
         </div>
-        <h3 className="text-lg font-bold">Your Progress</h3>
+        <h3 className="text-lg font-bold">Seu progresso</h3>
       </div>
 
       <div className="space-y-4">
@@ -20,9 +23,9 @@ export function StatsPanel() {
             <div className="w-8 h-8 bg-white/20 rounded-md flex items-center justify-center">
               <GraduationCap size={16} />
             </div>
-            <span className="text-sm text-white/80">Lessons Completed</span>
+            <span className="text-sm text-white/80">Lições concluídas</span>
           </div>
-          <p className="text-3xl font-bold">{lessons.length}</p>
+          <p className="text-3xl font-bold tabular-nums">{displayLessons}</p>
         </div>
 
         <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">
@@ -30,9 +33,9 @@ export function StatsPanel() {
             <div className="w-8 h-8 bg-white/20 rounded-md flex items-center justify-center">
               <BookMarked size={16} />
             </div>
-            <span className="text-sm text-white/80">Words Learned</span>
+            <span className="text-sm text-white/80">Palavras aprendidas</span>
           </div>
-          <p className="text-3xl font-bold">{wordsCount}</p>
+          <p className="text-3xl font-bold tabular-nums">{displayWords}</p>
         </div>
       </div>
     </div>

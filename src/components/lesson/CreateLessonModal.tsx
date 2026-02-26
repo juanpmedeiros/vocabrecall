@@ -1,6 +1,7 @@
 import { X, Plus, Sparkles, Settings, Edit2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import { useIsMobile } from '@/components/ui/use-mobile';
 import { useToast } from '@/hooks/useToast';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
 import type { Category } from '@/types';
@@ -27,6 +28,7 @@ function getWordError(word: { word: string; translation: string }): string {
 }
 
 export function CreateLessonModal() {
+  const isMobile = useIsMobile();
   const { showCreateModal, toggleCreateModal, addLesson } = useVocabRecall();
   const { showToast } = useToast();
 
@@ -180,35 +182,54 @@ export function CreateLessonModal() {
   return (
     <AnimatePresence>
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
           <motion.div
             initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
+            animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
-            className="absolute inset-0 bg-black/50 backdrop-blur-md"
+            className="absolute inset-0 bg-black backdrop-blur-md"
             onClick={handleClose}
-          ></motion.div>
-
+          />
           <motion.div
-            initial={{ opacity: 0, scale: 0.95, y: 20 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.95, y: 20 }}
-            transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+            initial={
+              isMobile
+                ? { y: '100%' }
+                : { opacity: 0, scale: 0.95 }
+            }
+            animate={
+              isMobile
+                ? { y: 0 }
+                : { opacity: 1, scale: 1 }
+            }
+            exit={
+              isMobile
+                ? { y: '100%', transition: { duration: 0.25, ease: [0.4, 0, 1, 1] } }
+                : { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
+            }
+            transition={{
+              duration: isMobile ? 0.3 : 0.25,
+              ease: [0, 0, 0.2, 1],
+            }}
             className="relative flex flex-col w-full h-full md:h-auto md:max-h-[90vh] md:w-full md:max-w-2xl md:rounded-2xl bg-white shadow-2xl"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="create-lesson-title"
           >
-            <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
+            <div className="absolute top-0 left-0 right-0 h-1 bg-primary" aria-hidden="true" />
 
             <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 shrink-0 bg-white z-10">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
                   <Sparkles className="text-white" size={18} />
                 </div>
-                <h2 className="text-xl font-bold text-gray-900">Create New Lesson</h2>
+                <h2 id="create-lesson-title" className="text-xl font-bold text-gray-900">Criar nova lição</h2>
               </div>
               <button
+                type="button"
                 onClick={handleClose}
                 className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
+                aria-label="Fechar"
               >
                 <X size={20} />
               </button>
@@ -412,16 +433,18 @@ export function CreateLessonModal() {
 
             <div className="flex items-center justify-end gap-3 p-4 md:p-6 border-t border-gray-100 bg-gradient-to-b from-transparent to-gray-50/50 shrink-0">
               <button
+                type="button"
                 onClick={handleClose}
                 className="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl transition-all"
               >
-                Cancel
+                Cancelar
               </button>
               <button
+                type="button"
                 onClick={handleCreate}
                 className="px-6 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105"
               >
-                Create Lesson
+                Criar lição
               </button>
             </div>
           </motion.div>

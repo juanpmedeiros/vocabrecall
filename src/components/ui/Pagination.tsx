@@ -37,11 +37,13 @@ export function Pagination() {
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 mt-8 flex-wrap">
+    <nav className="flex items-center justify-center gap-2 mt-8 flex-wrap" aria-label="Paginação">
       <button
+        type="button"
         onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage === 1}
-        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+        aria-label="Página anterior"
       >
         <ChevronLeft size={18} />
       </button>
@@ -57,7 +59,7 @@ export function Pagination() {
           <button
             key={index}
             onClick={() => setCurrentPage(page)}
-            className="hidden md:flex items-center justify-center min-h-[44px] w-9 rounded-lg font-medium text-sm transition-all shrink-0 ${
+            className="hidden md:flex items-center justify-center min-h-[44px] w-9 rounded-lg font-medium text-sm transition-all shrink-0 active:scale-95 ${
               currentPage === page
                 ? 'bg-primary text-white shadow-md'
                 : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
@@ -73,12 +75,14 @@ export function Pagination() {
       )}
 
       <button
+        type="button"
         onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+        aria-label="Próxima página"
       >
         <ChevronRight size={18} />
       </button>
-    </div>
+    </nav>
   );
 }

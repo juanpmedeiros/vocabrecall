@@ -1,0 +1,132 @@
+/**
+ * PROMPT 7 — Animações e transições globais.
+ * Durações e easings padrão; keyframes; classes utilitárias.
+ * Todas as animações são reduzidas/desligadas com prefers-reduced-motion.
+ */
+
+:root {
+  --duration-fast: 150ms;
+  --duration-normal: 250ms;
+  --duration-slow: 400ms;
+  --duration-slower: 600ms;
+  --easing-out: cubic-bezier(0, 0, 0.2, 1);
+  --easing-in-out: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ─── Keyframes ─────────────────────────────────────────────────────────── */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes fadeOut {
+  from { opacity: 1; }
+  to { opacity: 0; }
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes flipCard {
+  from { transform: rotateY(0deg); }
+  to { transform: rotateY(180deg); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+@keyframes scaleIn {
+  from { opacity: 0; transform: scale(0.95); }
+  to { opacity: 1; transform: scale(1); }
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    var(--muted) 0%,
+    var(--accent) 50%,
+    var(--muted) 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 1500ms ease-in-out infinite;
+}
+
+/* ─── Classes utilitárias ───────────────────────────────────────────────── */
+.animate-fade-in {
+  animation: fadeIn var(--duration-normal) var(--easing-out) forwards;
+}
+
+.animate-fade-out {
+  animation: fadeOut var(--duration-fast) forwards;
+}
+
+.animate-slide-up {
+  animation: slideUp 300ms var(--easing-out) forwards;
+}
+
+.animate-slide-down {
+  animation: slideDown 300ms var(--easing-out) forwards;
+}
+
+.animate-scale-in {
+  animation: scaleIn var(--duration-normal) var(--easing-out) forwards;
+}
+
+/* ─── Hover / transições (usar em componentes) ───────────────────────────── */
+.hover-lift {
+  transition: transform 250ms var(--easing-out), box-shadow 250ms var(--easing-out);
+}
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+.btn-primary-hover {
+  transition: filter 200ms var(--easing-in-out);
+}
+.btn-primary-hover:hover {
+  filter: brightness(1.1);
+}
+
+.btn-secondary-hover {
+  transition: background-color 200ms var(--easing-in-out);
+}
+
+.badge-hover {
+  transition: transform 200ms var(--easing-in-out);
+}
+.badge-hover:hover {
+  transform: scale(1.05);
+}
+
+.badge-icon-hover {
+  transition: transform 400ms var(--easing-in-out);
+}
+.badge-icon-hover:hover {
+  transform: rotate(360deg);
+}
+
+/* ─── Obrigatório: prefers-reduced-motion ────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

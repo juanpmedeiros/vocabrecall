@@ -2,21 +2,24 @@ import { X, BookOpen, Calendar, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
 import { getCategoryBadgeStyle } from '@/constants/categories';
+import { useIsMobile } from '@/components/ui/use-mobile';
 import { useToast } from '@/hooks/useToast';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
 import { StudyCard } from '@/components/study/StudyCard';
 
 export function LessonDetailModal() {
+  const isMobile = useIsMobile();
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const { selectedLesson, selectLesson, deleteLesson, formatLessonDate } = useVocabRecall();
   const { showToast } = useToast();
 
-  if (!selectedLesson || !selectedLesson.words || selectedLesson.words.length === 0) {
+  if (!selectedLesson) {
     return null;
   }
 
   const lesson = selectedLesson;
   const categoryData = getCategoryBadgeStyle(lesson.category);
+  const hasWords = lesson.words && lesson.words.length > 0;
 
   const handleClose = () => {
     setShowDeleteConfirm(false);
@@ -32,21 +35,38 @@ export function LessonDetailModal() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
+      <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center p-0 md:p-4">
         <motion.div
           initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
+          animate={{ opacity: 0.5 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.2 }}
-          className="absolute inset-0 bg-black/50 backdrop-blur-md"
+          className="absolute inset-0 bg-black backdrop-blur-md"
           onClick={handleClose}
-        ></motion.div>
-
+        />
         <motion.div
-          initial={{ opacity: 0, scale: 0.95, y: 20 }}
-          animate={{ opacity: 1, scale: 1, y: 0 }}
-          exit={{ opacity: 0, scale: 0.95, y: 20 }}
-          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          role="dialog"
+          aria-modal="true"
+          aria-labelledby="lesson-detail-title"
+          initial={
+            isMobile
+              ? { y: '100%' }
+              : { opacity: 0, scale: 0.95 }
+          }
+          animate={
+            isMobile
+              ? { y: 0 }
+              : { opacity: 1, scale: 1 }
+          }
+          exit={
+            isMobile
+              ? { y: '100%', transition: { duration: 0.25, ease: [0.4, 0, 1, 1] } }
+              : { opacity: 0, scale: 0.95, transition: { duration: 0.2 } }
+          }
+          transition={{
+            duration: isMobile ? 0.3 : 0.25,
+            ease: [0, 0, 0.2, 1],
+          }}
           className="relative flex flex-col w-full h-full md:h-auto md:max-h-[90vh] md:w-full md:max-w-2xl md:rounded-2xl bg-white shadow-2xl"
         >
           <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 shrink-0">
@@ -60,10 +80,10 @@ export function LessonDetailModal() {
                   {formatLessonDate(lesson.date)}
                 </span>
               </div>
-              <h2 className="text-xl font-bold text-gray-900">{lesson.title}</h2>
+              <h2 id="lesson-detail-title" className="text-xl font-bold text-gray-900">{lesson.title}</h2>
               <div className="flex items-center gap-2 mt-2 text-sm text-gray-600">
                 <BookOpen size={14} className="text-primary" />
-                <span>{lesson.words.length} palavras nesta lição</span>
+                <span>{lesson.words?.length ?? 0} palavras nesta lição</span>
               </div>
             </div>
             <div className="flex items-center gap-1 shrink-0">
@@ -71,13 +91,16 @@ export function LessonDetailModal() {
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
                 className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-destructive hover:bg-destructive/10 rounded-lg p-1.5 transition-colors"
+                aria-label="Excluir lição"
                 title="Excluir lição"
               >
                 <Trash2 size={20} />
               </button>
               <button
+                type="button"
                 onClick={handleClose}
                 className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
+                aria-label="Fechar"
               >
                 <X size={20} />
               </button>
@@ -114,11 +137,24 @@ export function LessonDetailModal() {
           )}
 
           <div className="p-4 md:p-8 overflow-y-auto flex-1 min-h-0">
-            <StudyCard
-              words={lesson.words}
-              category={lesson.category}
-              onClose={handleClose}
-            />
+            {hasWords ? (
+              <StudyCard
+                words={lesson.words}
+                category={lesson.category}
+                onClose={handleClose}
+              />
+            ) : (
+              <div className="flex flex-col items-center justify-center py-12 text-center">
+                <p className="text-gray-600 mb-4">Esta lição não tem palavras ainda.</p>
+                <button
+                  type="button"
+                  onClick={handleClose}
+                  className="px-4 py-2.5 text-sm font-semibold text-primary bg-primary/10 hover:bg-primary/20 rounded-xl transition-colors"
+                >
+                  Adicionar palavras
+                </button>
+              </div>
+            )}
           </div>
         </motion.div>
       </div>

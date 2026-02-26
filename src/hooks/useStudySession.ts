@@ -11,7 +11,7 @@ export function useStudySession(words: Word[]) {
 
   const totalWords = sessionWords.length;
   const currentWord = totalWords > 0 ? sessionWords[currentIndex] ?? null : null;
-  const progress = totalWords > 0 ? (currentIndex / totalWords) * 100 : 0;
+  const progress = totalWords > 0 ? ((currentIndex + 1) / totalWords) * 100 : 0;
   const remainingWords = Math.max(0, totalWords - currentIndex);
 
   const advanceAndMaybeFinish = useCallback(() => {
@@ -73,6 +73,7 @@ export function useStudySession(words: Word[]) {
   }, [words, unknownWords]);
 
   return {
+    sessionWords,
     currentIndex,
     isFlipped,
     isFinished,
