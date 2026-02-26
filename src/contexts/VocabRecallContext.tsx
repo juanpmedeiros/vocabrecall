@@ -12,8 +12,12 @@ import {
 } from 'react';
 import type { Category, Lesson, VocabPhrase } from '@/types';
 import { MOCK_LESSONS, MOCK_VOCAB_PHRASES } from '@/constants/mockData';
-import { formatRelativeDate, normalizeSearch } from '@/utils';
-import { countTotalWords, sortLessonsByDate } from '@/utils';
+import {
+  countTotalWords,
+  formatRelativeDate,
+  normalizeSearch,
+  sortLessonsByDate,
+} from '@/utils';
 
 export type CategoryFilter = Category | 'all';
 
@@ -25,6 +29,9 @@ function buildLesson(input: Omit<Lesson, 'id'>): Lesson {
   };
 }
 
+// TODO: integrar com Supabase — substituir mockData por:
+// const { data } = await supabase.from('lessons').select()
+// idem para vocab_phrases
 const initialLessons: Lesson[] = MOCK_LESSONS.map((l) => ({
   ...l,
   id: crypto.randomUUID(),
@@ -84,10 +91,12 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
   );
 
   const addLesson = useCallback((lesson: Omit<Lesson, 'id'>) => {
+    // TODO: integrar com Supabase — espelhar operação na tabela 'lessons'
     setLessons((prev) => [...prev, buildLesson(lesson)]);
   }, []);
 
   const updateLesson = useCallback((id: string, data: Partial<Lesson>) => {
+    // TODO: integrar com Supabase — espelhar operação na tabela 'lessons'
     setLessons((prev) =>
       prev.map((l) =>
         l.id === id
@@ -102,6 +111,7 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
   }, []);
 
   const deleteLesson = useCallback((id: string) => {
+    // TODO: integrar com Supabase — espelhar operação na tabela 'lessons'
     setLessons((prev) => prev.filter((l) => l.id !== id));
     setSelectedLessonId((prev) => (prev === id ? null : prev));
   }, []);

@@ -392,4 +392,80 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 ---
 
-**Última atualização:** PROMPT 8 concluído. Aguardando "Próximo" para avançar.
+## PROMPT FINAL — Revisão de Entrega
+
+**Status:** Concluído
+
+- Checklist de qualidade validado (funcionalidades, arquitetura, design system, acessibilidade).
+- TODOs de integração Supabase adicionados em `VocabRecallContext` e nos CRUDs.
+- Criado `src/services/lessons.service.ts` (estrutura vazia para implementação futura).
+- DOCUMENTATION.md e README.md atualizados com entrega final.
+
+---
+
+## Entrega Final
+
+### Prompts Concluídos
+
+- ✅ PROMPT 0: Análise e Planejamento
+- ✅ PROMPT 1: Estrutura Base e Tipos
+- ✅ PROMPT 2: Context Global e Estado
+- ✅ PROMPT 3: Refatoração de Componentes
+- ✅ PROMPT 4: Modais com Validação e Toasts
+- ✅ PROMPT 5: Lógica de Flashcard e Sessão de Estudo
+- ✅ PROMPT 6: Utilitários e Responsividade Mobile
+- ✅ PROMPT 7: Animações e Transições Globais
+- ✅ PROMPT 8: Testes e Validação Final
+- ✅ PROMPT FINAL: Revisão de Entrega
+
+### Componentes Criados
+
+| Componente | Responsabilidade |
+|------------|------------------|
+| **App** | Layout principal: header (busca, Nova lição), lista de LessonCard, paginação, estados vazios, sidebar (StatsPanel, VocabReminder), modais. Consome apenas useVocabRecall. |
+| **LessonCard** | Card de lição: título, categoria, data, contagem de palavras, menu (Editar/Excluir), botão Ver lição. Usa useVocabRecall para delete e selectLesson. |
+| **CreateLessonModal** | Modal de criação: título, categoria, lista de palavras (word/translation/context), validação, toast de sucesso. Usa useVocabRecall (addLesson, toggleCreateModal) e useToast. |
+| **LessonDetailModal** | Modal de detalhe: cabeçalho (título, categoria, data), confirmação de exclusão, StudyCard ou estado vazio (lição sem palavras). Usa useVocabRecall e useToast. |
+| **AddWordModal** | Modal genérico para adicionar palavra (word, translation, context). Validação e toast. Props isOpen/onClose. |
+| **StudyCard** | Flashcard: frente/verso com flip 3D, barra de progresso, botões Já sei/Revisar, navegação anterior/próximo, tela de conclusão com estatísticas e Revisar difíceis. Usa useStudySession. |
+| **StatsPanel** | Painel de progresso: total de lições e total de palavras com animação de contagem (useCountUp). Usa useVocabRecall. |
+| **VocabReminder** | Bloco de frases de exemplo (vocabPhrases do Context), navegação entre frases. |
+| **Pagination** | Anterior/Próximo + números de página (desktop); mobile mostra apenas “Página X de Y”. Usa useVocabRecall. |
+| **Toast** | Item de notificação (success/error), animação de entrada/saída. Usado via useToast. |
+| **Skeleton** | Placeholder de carregamento (shimmer). Variantes SkeletonCard e SkeletonText. Preparado para uso futuro. |
+
+Além disso, `src/components/ui/` contém os primitivos Radix/shadcn (button, dialog, input, etc.) reutilizados no projeto.
+
+### Hooks Customizados
+
+| Hook | Descrição |
+|------|-----------|
+| **useVocabRecall** | Acesso ao Context global: lessons, selectedLesson, CRUD, filtros (searchText, selectedCategory, currentPage), getFilteredLessons, getPaginatedLessons, getTotalPages, getTotalWords, getRecentLessons, formatLessonDate, showCreateModal, toggleCreateModal, itemsPerPage. Lança erro se usado fora do Provider. |
+| **useStudySession** | Sessão de estudo local: currentIndex, isFlipped, isFinished, knownWords, unknownWords, currentWord, progress, totalWords, remainingWords; flipCard, markAsKnown, markAsUnknown, nextCard, prevCard, restartSession, restartUnknown. Recebe words: Word[]. |
+| **useToast** | Reexporta o hook do ToastContext: showToast(message, type), removeToast(id). Usado para feedback não bloqueante. |
+| **useCountUp** | Animação de número de 0 até o valor final (requestAnimationFrame). Usado no StatsPanel. Respeita prefers-reduced-motion. |
+| **useIsMobile** | Detecta viewport &lt; 768px para ajustar animação de modais (fullscreen no mobile). |
+
+### Utilitários
+
+| Arquivo | Funções |
+|---------|---------|
+| **date.utils** | formatDate, formatDateLong, formatRelativeDate, isRecentDate |
+| **string.utils** | truncate, capitalize, normalizeSearch |
+| **lesson.utils** | countTotalWords, getLessonsByCategory, sortLessonsByDate, getWordsForReview |
+
+Re-exportados via `src/utils/index.ts`.
+
+### Próximos Passos Sugeridos
+
+1. Integração com Supabase para persistência real (lessons, vocab_phrases).
+2. Autenticação de usuário.
+3. Funcionalidade de edição de lição existente.
+4. Algoritmo de spaced repetition (ex.: SM-2).
+5. Estatísticas de progresso por lição.
+6. Export/import de lições em CSV.
+7. Suporte a múltiplos idiomas.
+
+---
+
+**Última atualização:** Entrega final VocabRecall v1.0.0.

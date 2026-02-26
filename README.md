@@ -19,23 +19,28 @@ O **VocabRecall** é uma aplicação web para quem está aprendendo idiomas. O u
 
 ## Funcionalidades implementadas
 
-- ✅ Listagem de lições com busca e paginação
-- ✅ Filtro por categoria
-- ✅ Criar nova lição com palavras
-- ✅ Visualizar lição em modo flashcard
-- ✅ Excluir lição com confirmação
-- ✅ VocabReminder com frases de exemplo
-- ✅ Estatísticas (total de lições e palavras)
-- ✅ Sistema de toasts para feedback
-- ✅ Validação de formulários
+- ✅ Listagem de lições com busca em tempo real (normalizeSearch) e paginação
+- ✅ Filtro por categoria (com reset de paginação)
+- ✅ Criar nova lição com validação completa e toast de sucesso
+- ✅ Visualizar lição em modo flashcard (flip animado)
+- ✅ Sessão de estudo: marcar como "Já sei" / "Revisar", tela de conclusão com estatísticas e opção de revisar difíceis
+- ✅ Excluir lição com confirmação inline e toast
+- ✅ VocabReminder exibindo frases do Context
+- ✅ StatsPanel com totais corretos e animação de contagem
+- ✅ Paginação com stagger de cards
+- ✅ Sistema de toasts e validação de formulários
+- ✅ Responsividade mobile (modais fullscreen, paginação adaptada)
+- ✅ Animações e transições globais (prefers-reduced-motion coberto)
+- ✅ Estados vazios e acessibilidade (foco, aria-labels, navegação por teclado)
 
-### Funcionalidades planejadas
+### Funcionalidades planejadas (próxima versão)
 
-- 🔄 Lógica completa de sessão de estudo (spaced repetition)
+- 🔄 Integração com Supabase para persistência real
 - 🔄 Edição de lição existente
-- 🔄 Responsividade completa mobile
-- 🔄 Animações e transições
-- 🔄 Persistência com Supabase (futura integração)
+- 🔄 Algoritmo de spaced repetition (SM-2)
+- 🔄 Estatísticas de progresso por lição
+- 🔄 Export/import de lições em CSV
+- 🔄 Suporte a múltiplos idiomas
 
 ---
 
@@ -60,12 +65,14 @@ src/
 │   ├── layout/             # StatsPanel, VocabReminder (sidebar)
 │   ├── lesson/             # LessonCard, CreateLessonModal, LessonDetailModal, AddWordModal
 │   ├── study/              # StudyCard (flashcard de estudo)
-│   └── ui/                 # Toast, Pagination, componentes Radix/shadcn (button, dialog, input, etc.)
+│   └── ui/                 # Toast, Pagination, Skeleton, componentes Radix/shadcn
 ├── contexts/               # VocabRecallContext (estado global), ToastContext (feedback)
-├── hooks/                  # useVocabRecall, useToast
+├── hooks/                  # useVocabRecall, useToast, useStudySession, useCountUp, useIsMobile
+├── services/               # lessons.service.ts (estrutura para integração Supabase)
 ├── types/                  # Tipos de domínio (Word, Lesson, VocabPhrase, Category)
 ├── constants/              # mockData (dados iniciais), categories (badges e estilos)
-├── styles/                 # theme.css (tokens), tailwind.css, index.css
+├── utils/                  # date.utils, string.utils, lesson.utils (re-exportados em index.ts)
+├── styles/                 # theme.css (tokens), animations.css, tailwind.css, index.css
 └── main.tsx                # Entry point (providers + App)
 ```
 
@@ -112,6 +119,15 @@ As cores e espaçamentos seguem uma hierarquia de variáveis CSS:
 
 ---
 
+## Arquitetura de Decisões
+
+- **Context API em vez de Redux/Zustand:** O estado do app (lições, filtros, modais) é pequeno e centralizado. O Context evita dependências extras e prop drilling: apenas `useVocabRecall()` é usado nos componentes. Para uma futura migração para Supabase, o Context continuará como camada de estado; as operações CRUD chamarão o serviço em `src/services/lessons.service.ts`.
+- **Sem localStorage/sessionStorage:** Os dados ficam apenas em memória para esta versão. A persistência virá do Supabase (tabelas `lessons` e `vocab_phrases`), evitando duplicar lógica e manter uma única fonte de verdade no backend.
+- **Mobile-first:** Layout e breakpoints foram pensados primeiro para telas pequenas; modais em fullscreen no mobile e paginação simplificada (Página X de Y) melhoram a UX em dispositivos touch.
+- **Design system:** Tokens em `theme.css` (semânticos → primitivos); nenhum valor hardcoded no código. Animações em `animations.css` com suporte a `prefers-reduced-motion` para acessibilidade.
+
+---
+
 ## Tipos TypeScript
 
 | Tipo         | Descrição |
@@ -147,7 +163,7 @@ Progresso dos prompts de refatoração:
 | ✅ | PROMPT 6: Utilitários e Responsividade Mobile |
 | ✅ | PROMPT 7: Animações e Transições Globais |
 | ✅ | PROMPT 8: Testes e Validação Final |
-| ⬜ | PROMPT 9: Testes e Validação Final |
+| ✅ | PROMPT FINAL: Revisão de Entrega |
 
 ---
 
