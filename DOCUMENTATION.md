@@ -57,4 +57,57 @@ Registro dos prompts executados e estado do projeto.
 
 ---
 
-**Última atualização:** PROMPT 1 concluído. Aguardando "Próximo" para avançar.
+## PROMPT 2 — Context Global e Gerenciamento de Estado
+
+**Status:** Concluído
+
+### Alterações realizadas
+
+1. **VocabRecallContext** (`src/contexts/VocabRecallContext.tsx`)
+   - Estado principal: `lessons`, `selectedLesson` (derivado de `selectedLessonId`), `vocabPhrases`
+   - CRUD: `addLesson` (id via `crypto.randomUUID()`, `wordsCount` de `words.length`), `updateLesson`, `deleteLesson` (zera `selectedLesson` se for a deletada), `selectLesson(id | null)`
+   - Estado de filtro: `searchText`, `selectedCategory` (Category | "all"), `currentPage`
+   - Funções de filtro: `setSearchText`, `setSelectedCategory`, `setCurrentPage` (as duas primeiras resetam `currentPage` para 1)
+   - Derivadas: `getFilteredLessons()` (busca em title, category, words; filtro por categoria; ordenação por date desc), `getPaginatedLessons(itemsPerPage)`, `getTotalPages(itemsPerPage)`, `getTotalWords()`, `getRecentLessons(limit)`, `formatLessonDate(iso)`
+
+2. **useVocabRecall** (`src/hooks/useVocabRecall.ts`)
+   - Encapsula `useContext(VocabRecallContext)` e lança erro descritivo se usado fora do Provider.
+
+3. **Mock** (`src/constants/mockData.ts`)
+   - 12 lições (2 por categoria), 4–8 palavras cada, datas em ISO nos últimos 3 meses; 4 VocabPhrases. Estado inicial do Provider.
+
+4. **Integração**
+   - `main.tsx`: app envolvido com `<VocabRecallProvider>`.
+   - `App.tsx`: removidos dados hardcoded e estados locais migrados; uso exclusivo de `useVocabRecall()` para dados e filtros; modal de detalhe abre/fecha via `selectedLesson` e `selectLesson(null)`.
+
+### Estados migrados de App.tsx para o Context
+
+| Antes (App.tsx)        | Depois (Context / hook) |
+|------------------------|-------------------------|
+| `allLessons` (array hardcoded) | `lessons` + inicialização com `mockData` |
+| `selectedLesson`       | `selectedLesson` + `selectLesson(id \| null)` |
+| `vocabPhrases` (array hardcoded) | `vocabPhrases` (inicializado no Provider) |
+| `searchValue`           | `searchText` + `setSearchText` |
+| `currentPage`          | `currentPage` + `setCurrentPage` |
+| `filteredLessons` (derivado) | `getFilteredLessons()` |
+| `currentLessons` (slice) | `getPaginatedLessons(ITEMS_PER_PAGE)` |
+| `totalPages`            | `getTotalPages(ITEMS_PER_PAGE)` |
+| `totalWords`            | `getTotalWords()` |
+| `handleView` (setSelectedLesson + abrir modal) | `selectLesson(id)`; modal aberto quando `selectedLesson !== null` |
+| `handleDelete` (só console.log) | `deleteLesson(id)` |
+
+Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
+
+### Regras
+
+- Apenas React state (`useState`); sem localStorage/sessionStorage.
+- Nenhum componente alterado além de `App.tsx`; nenhum visual alterado.
+- Handlers (Edit, Delete, View) continuam funcionando; fonte dos dados é o contexto.
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+**Última atualização:** PROMPT 2 concluído. Aguardando "Próximo" para avançar.
