@@ -110,4 +110,51 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 ---
 
-**Última atualização:** PROMPT 2 concluído. Aguardando "Próximo" para avançar.
+## PROMPT 3 — Refatoração dos Componentes (Eliminar Prop Drilling)
+
+**Status:** Concluído
+
+### 1. Mapeamento do prop drilling (antes da refatoração)
+
+| Componente | Props recebidas | Origem possível no Context |
+|------------|------------------|----------------------------|
+| **LessonCard** | id, title, date, wordsCount, category, onEdit, onDelete, onView | Dados: id, title, date, wordsCount, category. Ações: deleteLesson(), selectLesson() |
+| **LessonDetailModal** | isOpen, onClose, lesson | lesson → selectedLesson; onClose → selectLesson(null); isOpen → selectedLesson !== null |
+| **CreateLessonModal** | isOpen, onClose | isOpen/onClose → showCreateModal, toggleCreateModal(); ao salvar → addLesson() |
+| **StatsPanel** | lessonsCount, wordsCount | lessons.length, getTotalWords() |
+| **VocabReminder** | phrases | vocabPhrases |
+| **Pagination** | currentPage, totalPages, onPageChange | currentPage, getTotalPages(itemsPerPage), setCurrentPage() |
+
+### 2. Alterações realizadas
+
+- **LessonCard:** Apenas props de apresentação (id, title, date, wordsCount, category). Passa a usar `useVocabRecall()` para `deleteLesson` e `selectLesson`; `onEdit` permanece como console.log local.
+- **LessonDetailModal:** Sem props. Usa `useVocabRecall()` para `selectedLesson`, `selectLesson(null)`, `formatLessonDate(lesson.date)`.
+- **CreateLessonModal:** Sem props. Usa `showCreateModal`, `toggleCreateModal`, `addLesson` do Context. Formulário controlado (lessonTitle, selectedCategory, words) e ao salvar chama `addLesson()` e `toggleCreateModal()`.
+- **StatsPanel:** Sem props. Usa `lessons.length` e `getTotalWords()` do Context.
+- **VocabReminder:** Sem props. Usa `vocabPhrases` do Context.
+- **Pagination:** Sem props. Usa `currentPage`, `setCurrentPage`, `getTotalPages(itemsPerPage)`, `itemsPerPage` do Context.
+
+### 3. Context (PROMPT 3)
+
+- Adicionados ao Context: `showCreateModal: boolean`, `toggleCreateModal(): void`, `itemsPerPage: number` (6).
+
+### 4. App.tsx
+
+- Apenas layout e orquestração: header (busca, botão New Lesson), lista de LessonCard (dados do context), Pagination, estados vazios, sidebar (StatsPanel, VocabReminder), CreateLessonModal e LessonDetailModal sem props. Nenhum dado de domínio ou handler passado como prop.
+
+### 5. AddWordModal
+
+- Movido de `src/components/AddWordModal.tsx` para `src/components/lesson/AddWordModal.tsx`. Nenhum import existia; uso futuro: `@/components/lesson/AddWordModal`.
+
+### Regras
+
+- Nenhum visual alterado; apenas a origem dos dados mudou.
+- `useVocabRecall()` é o único ponto de acesso ao contexto.
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+**Última atualização:** PROMPT 3 concluído. Aguardando "Próximo" para avançar.

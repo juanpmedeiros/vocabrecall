@@ -1,15 +1,16 @@
 import { X, Plus, Sparkles, Settings, Edit2, Trash2 } from 'lucide-react';
 import { motion, AnimatePresence } from 'motion/react';
 import { useState } from 'react';
+import { useVocabRecall } from '@/hooks/useVocabRecall';
+import type { Category } from '@/types';
 
-interface CreateLessonModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
+export function CreateLessonModal() {
+  const { showCreateModal, toggleCreateModal, addLesson } = useVocabRecall();
 
-export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
+  const [lessonTitle, setLessonTitle] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<Category>('business');
   const [words, setWords] = useState<Array<{ word: string; translation: string; context: string }>>([
-    { word: '', translation: '', context: '' }
+    { word: '', translation: '', context: '' },
   ]);
 
   const [categories, setCategories] = useState([
@@ -18,7 +19,7 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
     'Technology',
     'Travel',
     'Transports',
-    'Business'
+    'Business',
   ]);
 
   const [showCategoryManager, setShowCategoryManager] = useState(false);
@@ -28,6 +29,14 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
 
   const addWordField = () => {
     setWords([...words, { word: '', translation: '', context: '' }]);
+  };
+
+  const updateWord = (index: number, field: 'word' | 'translation' | 'context', value: string) => {
+    setWords((prev) => {
+      const next = [...prev];
+      next[index] = { ...next[index], [field]: value };
+      return next;
+    });
   };
 
   const addCategory = () => {
@@ -61,9 +70,33 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
     setEditingValue('');
   };
 
+  const handleClose = () => {
+    toggleCreateModal();
+  };
+
+  const handleCreate = () => {
+    const validWords = words
+      .filter((w) => w.word.trim())
+      .map((w) => ({
+        word: w.word.trim(),
+        translation: w.translation.trim(),
+        context: w.context.trim() || undefined,
+      }));
+    if (!lessonTitle.trim() || validWords.length === 0) return;
+    const category = selectedCategory.toLowerCase() as Category;
+    addLesson({
+      title: lessonTitle.trim(),
+      date: new Date().toISOString().slice(0, 10),
+      wordsCount: validWords.length,
+      category,
+      words: validWords,
+    });
+    toggleCreateModal();
+  };
+
   return (
     <AnimatePresence>
-      {isOpen && (
+      {showCreateModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <motion.div
             initial={{ opacity: 0 }}
@@ -71,7 +104,7 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
             exit={{ opacity: 0 }}
             transition={{ duration: 0.2 }}
             className="absolute inset-0 bg-black/50 backdrop-blur-md"
-            onClick={onClose}
+            onClick={handleClose}
           ></motion.div>
 
           <motion.div
@@ -91,7 +124,7 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
                 <h2 className="text-xl font-bold text-gray-900">Create New Lesson</h2>
               </div>
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
               >
                 <X size={20} />
@@ -108,6 +141,8 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
                     type="text"
                     id="lessonTitle"
                     placeholder="e.g., Business English - Meeting Vocabulary"
+                    value={lessonTitle}
+                    onChange={(e) => setLessonTitle(e.target.value)}
                     className="w-full px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300"
                   />
                 </div>
@@ -119,6 +154,8 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
                   <div className="flex gap-2">
                     <select
                       id="category"
+                      value={selectedCategory}
+                      onChange={(e) => setSelectedCategory(e.target.value as Category)}
                       className="flex-1 px-4 py-3 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300 bg-gray-50 focus:bg-white"
                     >
                       <option value="">Select a category</option>
@@ -237,16 +274,22 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
                       <input
                         type="text"
                         placeholder="Word in English"
+                        value={word.word}
+                        onChange={(e) => updateWord(index, 'word', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white"
                       />
                       <input
                         type="text"
                         placeholder="Translation (PT-BR)"
+                        value={word.translation}
+                        onChange={(e) => updateWord(index, 'translation', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white"
                       />
                       <textarea
                         rows={2}
                         placeholder="Context sentence..."
+                        value={word.context}
+                        onChange={(e) => updateWord(index, 'context', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-sm bg-white"
                       />
                     </div>
@@ -264,13 +307,13 @@ export function CreateLessonModal({ isOpen, onClose }: CreateLessonModalProps) {
 
             <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 bg-gradient-to-b from-transparent to-gray-50/50 sticky bottom-0">
               <button
-                onClick={onClose}
+                onClick={handleClose}
                 className="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl transition-all"
               >
                 Cancel
               </button>
               <button
-                onClick={onClose}
+                onClick={handleCreate}
                 className="px-6 py-2.5 text-sm font-semibold text-white bg-primary hover:bg-primary-dark rounded-xl transition-all shadow-md hover:shadow-lg hover:scale-105"
               >
                 Create Lesson

@@ -1,6 +1,7 @@
 import { MoreVertical, Calendar, BookOpen, Edit2, Trash2, Eye } from 'lucide-react';
 import { useState } from 'react';
 import { getCategoryBadgeStyle } from '@/constants/categories';
+import { useVocabRecall } from '@/hooks/useVocabRecall';
 import type { Category } from '@/types';
 
 interface LessonCardProps {
@@ -9,18 +10,19 @@ interface LessonCardProps {
   date: string;
   wordsCount: number;
   category: Category;
-  onEdit: (id: string) => void;
-  onDelete: (id: string) => void;
-  onView: (id: string) => void;
 }
 
-export function LessonCard({ id, title, date, wordsCount, category, onEdit, onDelete, onView }: LessonCardProps) {
+export function LessonCard({ id, title, date, wordsCount, category }: LessonCardProps) {
   const [showMenu, setShowMenu] = useState(false);
+  const { deleteLesson, selectLesson } = useVocabRecall();
   const data = getCategoryBadgeStyle(category);
+
+  const handleEdit = () => {
+    console.log('Edit lesson:', id);
+  };
 
   return (
     <div className="group bg-white rounded-xl shadow-sm hover:shadow-lg border border-gray-200/60 overflow-hidden transition-all duration-300 hover:-translate-y-1">
-      {/* Header */}
       <div className="p-5 border-b border-gray-100">
         <div className="flex items-start justify-between mb-3">
           <span className={`inline-block px-3 py-1 rounded-md text-xs font-semibold ${data.bg} ${data.text}`}>
@@ -38,7 +40,7 @@ export function LessonCard({ id, title, date, wordsCount, category, onEdit, onDe
               <div className="absolute right-0 top-full mt-1 w-48 bg-white rounded-xl shadow-2xl border border-gray-100 py-2 z-10">
                 <button
                   onClick={() => {
-                    onEdit(id);
+                    handleEdit();
                     setShowMenu(false);
                   }}
                   className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 flex items-center gap-3 transition-colors"
@@ -48,7 +50,7 @@ export function LessonCard({ id, title, date, wordsCount, category, onEdit, onDe
                 </button>
                 <button
                   onClick={() => {
-                    onDelete(id);
+                    deleteLesson(id);
                     setShowMenu(false);
                   }}
                   className="w-full px-4 py-2.5 text-left text-sm text-red-600 hover:bg-red-50 flex items-center gap-3 transition-colors"
@@ -69,7 +71,6 @@ export function LessonCard({ id, title, date, wordsCount, category, onEdit, onDe
         <h3 className="text-lg font-bold text-gray-900 mb-1">{title}</h3>
       </div>
 
-      {/* Content */}
       <div className="p-5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-sm text-gray-600">
@@ -79,7 +80,7 @@ export function LessonCard({ id, title, date, wordsCount, category, onEdit, onDe
           </div>
 
           <button
-            onClick={() => onView(id)}
+            onClick={() => selectLesson(id)}
             className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-all"
           >
             <Eye size={14} />

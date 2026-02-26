@@ -58,6 +58,10 @@ export interface VocabRecallContextValue {
   getRecentLessons: (limit: number) => Lesson[];
 
   formatLessonDate: (iso: string) => string;
+
+  showCreateModal: boolean;
+  toggleCreateModal: () => void;
+  itemsPerPage: number;
 }
 
 const VocabRecallContext = createContext<VocabRecallContextValue | null>(null);
@@ -73,6 +77,9 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
   const [searchText, setSearchTextState] = useState('');
   const [selectedCategory, setSelectedCategoryState] = useState<CategoryFilter>('all');
   const [currentPage, setCurrentPageState] = useState(1);
+  const [showCreateModal, setShowCreateModal] = useState(false);
+
+  const ITEMS_PER_PAGE = 6;
 
   const selectedLesson = useMemo(
     () => lessons.find((l) => l.id === selectedLessonId) ?? null,
@@ -104,6 +111,10 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
 
   const selectLesson = useCallback((id: string | null) => {
     setSelectedLessonId(id);
+  }, []);
+
+  const toggleCreateModal = useCallback(() => {
+    setShowCreateModal((prev) => !prev);
   }, []);
 
   const setSearchText = useCallback((text: string) => {
@@ -204,6 +215,9 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
     getTotalWords,
     getRecentLessons,
     formatLessonDate: formatLessonDateFn,
+    showCreateModal,
+    toggleCreateModal,
+    itemsPerPage: ITEMS_PER_PAGE,
   };
 
   return (

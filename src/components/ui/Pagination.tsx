@@ -1,15 +1,12 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useVocabRecall } from '@/hooks/useVocabRecall';
 
-interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  onPageChange: (page: number) => void;
-}
+export function Pagination() {
+  const { currentPage, setCurrentPage, getTotalPages, itemsPerPage } = useVocabRecall();
+  const totalPages = getTotalPages(itemsPerPage);
 
-
-export function Pagination({ currentPage, totalPages, onPageChange }: PaginationProps) {
   const getPageNumbers = () => {
-    const pages = [];
+    const pages: (number | string)[] = [];
     const maxVisible = 5;
 
     if (totalPages <= maxVisible) {
@@ -42,7 +39,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
   return (
     <div className="flex items-center justify-center gap-2 mt-8">
       <button
-        onClick={() => onPageChange(currentPage - 1)}
+        onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage === 1}
         className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >
@@ -53,7 +50,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
         typeof page === 'number' ? (
           <button
             key={index}
-            onClick={() => onPageChange(page)}
+            onClick={() => setCurrentPage(page)}
             className={`flex items-center justify-center w-9 h-9 rounded-lg font-medium text-sm transition-all ${
               currentPage === page
                 ? 'bg-primary text-white shadow-md'
@@ -70,7 +67,7 @@ export function Pagination({ currentPage, totalPages, onPageChange }: Pagination
       )}
 
       <button
-        onClick={() => onPageChange(currentPage + 1)}
+        onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage === totalPages}
         className="flex items-center justify-center w-9 h-9 rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all"
       >

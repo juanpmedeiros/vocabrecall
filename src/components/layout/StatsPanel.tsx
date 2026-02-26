@@ -1,11 +1,10 @@
 import { GraduationCap, BookMarked, TrendingUp } from 'lucide-react';
+import { useVocabRecall } from '@/hooks/useVocabRecall';
 
-interface StatsPanelProps {
-  lessonsCount: number;
-  wordsCount: number;
-}
+export function StatsPanel() {
+  const { lessons, getTotalWords } = useVocabRecall();
+  const wordsCount = getTotalWords();
 
-export function StatsPanel({ lessonsCount, wordsCount }: StatsPanelProps) {
   return (
     <div className="bg-primary rounded-xl p-6 text-white shadow-lg">
       <div className="flex items-center gap-3 mb-6">
@@ -23,7 +22,7 @@ export function StatsPanel({ lessonsCount, wordsCount }: StatsPanelProps) {
             </div>
             <span className="text-sm text-white/80">Lessons Completed</span>
           </div>
-          <p className="text-3xl font-bold">{lessonsCount}</p>
+          <p className="text-3xl font-bold">{lessons.length}</p>
         </div>
 
         <div className="bg-white/10 backdrop-blur-sm rounded-lg p-4 border border-white/10">

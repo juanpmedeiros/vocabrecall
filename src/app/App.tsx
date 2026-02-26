@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import { Search, Plus, Sparkles, LayoutGrid } from 'lucide-react';
 import { LessonCard } from '@/components/lesson/LessonCard';
 import { StatsPanel } from '@/components/layout/StatsPanel';
@@ -8,26 +7,17 @@ import { LessonDetailModal } from '@/components/lesson/LessonDetailModal';
 import { Pagination } from '@/components/ui/Pagination';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
 
-const ITEMS_PER_PAGE = 6;
-
 export default function App() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
-
   const {
     lessons,
-    selectedLesson,
-    vocabPhrases,
     searchText,
-    currentPage,
     setSearchText,
-    setCurrentPage,
-    selectLesson,
-    deleteLesson,
+    toggleCreateModal,
     getFilteredLessons,
     getPaginatedLessons,
     getTotalPages,
-    getTotalWords,
     formatLessonDate,
+    itemsPerPage,
   } = useVocabRecall();
 
   const handleSearchKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -37,21 +27,8 @@ export default function App() {
   };
 
   const filteredLessons = getFilteredLessons();
-  const totalPages = getTotalPages(ITEMS_PER_PAGE);
-  const currentLessons = getPaginatedLessons(ITEMS_PER_PAGE);
-  const totalWords = getTotalWords();
-
-  const handleEdit = (id: string) => {
-    console.log('Edit lesson:', id);
-  };
-
-  const handleDelete = (id: string) => {
-    deleteLesson(id);
-  };
-
-  const handleView = (id: string) => {
-    selectLesson(id);
-  };
+  const totalPages = getTotalPages(itemsPerPage);
+  const currentLessons = getPaginatedLessons(itemsPerPage);
 
   return (
     <div className="min-h-screen bg-bg-page">
@@ -72,9 +49,7 @@ export default function App() {
                   type="text"
                   placeholder="Search lessons or words..."
                   value={searchText}
-                  onChange={(e) => {
-                    setSearchText(e.target.value);
-                  }}
+                  onChange={(e) => setSearchText(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
                   className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all text-sm"
                 />
@@ -82,7 +57,7 @@ export default function App() {
             </div>
 
             <button
-              onClick={() => setIsModalOpen(true)}
+              onClick={toggleCreateModal}
               className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md hover:shadow-lg hover:scale-105 duration-200"
             >
               <Plus size={18} strokeWidth={2.5} />
@@ -120,20 +95,11 @@ export default function App() {
                   date={formatLessonDate(lesson.date)}
                   wordsCount={lesson.wordsCount}
                   category={lesson.category}
-                  onEdit={handleEdit}
-                  onDelete={handleDelete}
-                  onView={handleView}
                 />
               ))}
             </div>
 
-            {totalPages > 1 && (
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
-              />
-            )}
+            {totalPages > 1 && <Pagination />}
 
             {filteredLessons.length === 0 && searchText.trim() && (
               <div className="text-center py-16">
@@ -159,7 +125,7 @@ export default function App() {
                 <h3 className="text-xl font-bold text-gray-900 mb-2">No lessons yet</h3>
                 <p className="text-gray-500 mb-6">Create your first lesson to start learning!</p>
                 <button
-                  onClick={() => setIsModalOpen(true)}
+                  onClick={toggleCreateModal}
                   className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md"
                 >
                   <Plus size={18} />
@@ -170,19 +136,14 @@ export default function App() {
           </div>
 
           <div className="space-y-6">
-            <StatsPanel lessonsCount={lessons.length} wordsCount={totalWords} />
-            <VocabReminder phrases={vocabPhrases} />
+            <StatsPanel />
+            <VocabReminder />
           </div>
         </div>
       </div>
 
-      <CreateLessonModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-
-      <LessonDetailModal
-        isOpen={selectedLesson !== null}
-        onClose={() => selectLesson(null)}
-        lesson={selectedLesson}
-      />
+      <CreateLessonModal />
+      <LessonDetailModal />
     </div>
   );
 }

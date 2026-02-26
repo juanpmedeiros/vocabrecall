@@ -1,19 +1,16 @@
 import { Lightbulb, RefreshCw } from 'lucide-react';
 import { useState } from 'react';
-import type { VocabPhrase } from '@/types';
+import { useVocabRecall } from '@/hooks/useVocabRecall';
 
-interface VocabReminderProps {
-  phrases: VocabPhrase[];
-}
-
-export function VocabReminder({ phrases }: VocabReminderProps) {
+export function VocabReminder() {
   const [currentIndex, setCurrentIndex] = useState(0);
+  const { vocabPhrases } = useVocabRecall();
 
   const handleNext = () => {
-    setCurrentIndex((prev) => (prev + 1) % phrases.length);
+    setCurrentIndex((prev) => (prev + 1) % vocabPhrases.length);
   };
 
-  if (phrases.length === 0) {
+  if (vocabPhrases.length === 0) {
     return (
       <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200/60">
         <div className="flex items-center gap-3 mb-4">
@@ -27,7 +24,7 @@ export function VocabReminder({ phrases }: VocabReminderProps) {
     );
   }
 
-  const current = phrases[currentIndex];
+  const current = vocabPhrases[currentIndex];
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm border border-gray-200/60">
@@ -53,7 +50,7 @@ export function VocabReminder({ phrases }: VocabReminderProps) {
       </div>
 
       <div className="flex items-center justify-center gap-1.5 mt-4">
-        {phrases.map((_, idx) => (
+        {vocabPhrases.map((_, idx) => (
           <div
             key={idx}
             className={`h-1.5 rounded-full transition-all ${
