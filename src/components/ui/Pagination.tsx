@@ -1,6 +1,8 @@
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { useVocabRecall } from '@/hooks/useVocabRecall';
 
+const BUTTON_SIZE = 'min-h-[44px] min-w-[44px]';
+
 export function Pagination() {
   const { currentPage, setCurrentPage, getTotalPages, itemsPerPage } = useVocabRecall();
   const totalPages = getTotalPages(itemsPerPage);
@@ -36,20 +38,29 @@ export function Pagination() {
     return pages;
   };
 
+  const inactiveClass =
+    'flex items-center justify-center rounded-lg bg-muted text-foreground hover:bg-accent transition-colors font-medium text-sm';
+
   return (
-    <nav className="flex items-center justify-center gap-2 mt-8 flex-wrap" aria-label="Paginação">
+    <nav
+      className="flex items-center justify-center gap-2 mt-8 flex-wrap"
+      aria-label="Paginação"
+    >
       <button
         type="button"
         onClick={() => setCurrentPage(currentPage - 1)}
         disabled={currentPage === 1}
-        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+        className={`${BUTTON_SIZE} ${inactiveClass} disabled:opacity-40 disabled:cursor-not-allowed active:scale-95`}
         aria-label="Página anterior"
       >
-        <ChevronLeft size={18} />
+        <ChevronLeft size={18} strokeWidth={2.5} />
       </button>
 
       {/* Mobile: only current page label */}
-      <span className="flex md:hidden items-center justify-center min-h-[44px] px-3 text-sm font-medium text-gray-700">
+      <span
+        className="flex md:hidden items-center justify-center min-h-[44px] px-3 text-sm font-medium text-foreground"
+        aria-hidden
+      >
         Página {currentPage} de {totalPages}
       </span>
 
@@ -58,17 +69,24 @@ export function Pagination() {
         typeof page === 'number' ? (
           <button
             key={index}
+            type="button"
             onClick={() => setCurrentPage(page)}
-            className="hidden md:flex items-center justify-center min-h-[44px] w-9 rounded-lg font-medium text-sm transition-all shrink-0 active:scale-95 ${
+            className={`hidden md:flex items-center justify-center ${BUTTON_SIZE} rounded-lg font-medium text-sm transition-colors shrink-0 active:scale-95 ${
               currentPage === page
-                ? 'bg-primary text-white shadow-md'
-                : 'border border-gray-200 text-gray-600 hover:bg-gray-50'
-            }"
+                ? 'bg-primary text-primary-foreground'
+                : inactiveClass
+            }`}
+            aria-label={currentPage === page ? `Página ${page}, atual` : `Ir para página ${page}`}
+            aria-current={currentPage === page ? 'page' : undefined}
           >
             {page}
           </button>
         ) : (
-          <span key={index} className="hidden md:flex items-center justify-center w-9 min-h-[44px] text-gray-400 shrink-0">
+          <span
+            key={index}
+            className="hidden md:flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg bg-muted text-muted-foreground shrink-0 text-sm font-medium"
+            aria-hidden
+          >
             {page}
           </span>
         )
@@ -78,10 +96,10 @@ export function Pagination() {
         type="button"
         onClick={() => setCurrentPage(currentPage + 1)}
         disabled={currentPage === totalPages}
-        className="flex items-center justify-center min-h-[44px] min-w-[44px] rounded-lg border border-gray-200 text-gray-600 hover:bg-gray-50 disabled:opacity-40 disabled:cursor-not-allowed transition-all active:scale-95"
+        className={`${BUTTON_SIZE} ${inactiveClass} disabled:opacity-40 disabled:cursor-not-allowed active:scale-95`}
         aria-label="Próxima página"
       >
-        <ChevronRight size={18} />
+        <ChevronRight size={18} strokeWidth={2.5} />
       </button>
     </nav>
   );
