@@ -194,3 +194,10 @@
     line-height: 1.5;
   }
 }
+
+/* PROMPT 5: Study card flip — with reduced motion, no rotation, fade only */
+@media (prefers-reduced-motion: reduce) {
+  .study-card-back {
+    transform: none !important;
+  }
+}

@@ -212,4 +212,40 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 ---
 
-**Última atualização:** PROMPT 4 concluído. Aguardando "Próximo" para avançar.
+## PROMPT 5 — Lógica de Flashcard e Sessão de Estudo
+
+**Status:** Concluído
+
+### 1. Hook useStudySession (`src/hooks/useStudySession.ts`)
+
+- **Estado:** `sessionWords` (lista atual, inicializada com `words`; alterada em `restartSession` e `restartUnknown`), `currentIndex`, `isFlipped`, `isFinished`, `knownWords[]`, `unknownWords[]`.
+- **Funções:** `flipCard()`, `markAsKnown()`, `markAsUnknown()`, `nextCard()`, `prevCard()`, `restartSession()` (volta à lista completa), `restartUnknown()` (reinicia só com `unknownWords`).
+- **Derivados:** `currentWord`, `progress` (percentual), `totalWords`, `remainingWords`.
+- **Uso:** Hook local; não está no Context global. Usado apenas dentro de `StudyCard`, que recebe `words: Word[]` e `category` (e opcionalmente `onClose`).
+
+### 2. StudyCard (`src/components/study/StudyCard.tsx`)
+
+- **Frente (`isFlipped = false`):** Palavra em destaque, badge da categoria (`getCategoryStudyStyle`), texto "Clique para revelar a tradução"; card inteiro clicável → `flipCard()`.
+- **Verso (`isFlipped = true`):** Palavra menor no topo, tradução em destaque, contexto em itálico (se existir); botões "✓ Já sei" (verde, `--success`) e "↺ Revisar" (amber) → `markAsKnown()` / `markAsUnknown()`.
+- **Barra de progresso:** No topo; texto "X de Y palavras"; preenchimento com `--color-primary` (progress %).
+- **Navegação:** "← Anterior" (`prevCard`, disabled se `currentIndex === 0`), "→ Próximo" (`nextCard`), abaixo do card.
+- **Tela de conclusão (`isFinished`):** Ícone de troféu, "Sessão concluída! 🎉", estatísticas (palavras dominadas, para revisar, total), botões "Revisar palavras difíceis" (disabled + tooltip se `unknownWords` vazio), "Reiniciar sessão", "Fechar" (`onClose`).
+- **Animação de flip:** CSS `transform: rotateY()` com `backface-visibility: hidden`; transição 400 ms ease-in-out. Em `theme.css`, `@media (prefers-reduced-motion: reduce)` a classe `.study-card-back` usa `transform: none` e a troca de conteúdo é feita apenas por opacidade (fade), sem rotação.
+
+### 3. Integração no LessonDetailModal
+
+- Conteúdo de estudo substituído por `<StudyCard words={lesson.words} category={lesson.category} onClose={handleClose} />`.
+- Estado da sessão é local ao modal: ao fechar, o modal (e o StudyCard) desmontam; ao reabrir, uma nova instância do hook inicia do zero.
+- Texto da lição ajustado para português: "X palavras nesta lição".
+
+### 4. Regras
+
+- `useStudySession` é hook local; todos os textos em português; cores via tokens (primary, success, destructive, muted); `prefers-reduced-motion` respeitado no flip.
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+**Última atualização:** PROMPT 5 concluído. Aguardando "Próximo" para avançar.
