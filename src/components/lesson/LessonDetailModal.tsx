@@ -32,7 +32,7 @@ export function LessonDetailModal() {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
@@ -47,9 +47,9 @@ export function LessonDetailModal() {
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 20 }}
           transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-          className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl"
+          className="relative flex flex-col w-full h-full md:h-auto md:max-h-[90vh] md:w-full md:max-w-2xl md:rounded-2xl bg-white shadow-2xl"
         >
-          <div className="flex items-center justify-between p-6 border-b border-gray-100">
+          <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 shrink-0">
             <div>
               <div className="flex items-center gap-2 mb-2">
                 <span className={`inline-block px-3 py-1 rounded-md text-xs font-semibold ${categoryData.bg} ${categoryData.text}`}>
@@ -66,18 +66,18 @@ export function LessonDetailModal() {
                 <span>{lesson.words.length} palavras nesta lição</span>
               </div>
             </div>
-            <div className="flex items-center gap-1">
+            <div className="flex items-center gap-1 shrink-0">
               <button
                 type="button"
                 onClick={() => setShowDeleteConfirm(true)}
-                className="text-gray-400 hover:text-destructive hover:bg-destructive/10 rounded-lg p-1.5 transition-colors"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-destructive hover:bg-destructive/10 rounded-lg p-1.5 transition-colors"
                 title="Excluir lição"
               >
                 <Trash2 size={20} />
               </button>
               <button
                 onClick={handleClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
               >
                 <X size={20} />
               </button>
@@ -113,7 +113,7 @@ export function LessonDetailModal() {
             </div>
           )}
 
-          <div className="p-8">
+          <div className="p-4 md:p-8 overflow-y-auto flex-1 min-h-0">
             <StudyCard
               words={lesson.words}
               category={lesson.category}

@@ -31,49 +31,59 @@ export default function App() {
   const currentLessons = getPaginatedLessons(itemsPerPage);
 
   return (
-    <div className="min-h-screen bg-bg-page">
+    <div className="min-h-screen bg-bg-page min-w-0 overflow-x-hidden">
       <header className="bg-white border-b border-gray-200/60 sticky top-0 z-20 shadow-sm">
-        <div className="max-w-[1600px] mx-auto px-8 py-5">
-          <div className="flex items-center justify-between gap-8">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md">
-                <Sparkles className="text-white" size={20} />
+        <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-4 md:py-5">
+          {/* Mobile: logo + New Lesson full width; search on next line */}
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between md:gap-8">
+            <div className="flex items-center justify-between gap-3">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-primary rounded-xl flex items-center justify-center shadow-md shrink-0">
+                  <Sparkles className="text-white" size={20} />
+                </div>
+                <h1 className="text-xl md:text-2xl font-bold text-gray-900">VocabRecall</h1>
               </div>
-              <h1 className="text-2xl font-bold text-gray-900">VocabRecall</h1>
+              <button
+                onClick={toggleCreateModal}
+                className="flex md:hidden items-center gap-2 px-4 py-2.5 min-h-[44px] min-w-[44px] bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md"
+              >
+                <Plus size={18} strokeWidth={2.5} />
+                New Lesson
+              </button>
             </div>
 
-            <div className="flex-1 max-w-xl">
-              <div className="relative group">
-                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors" size={18} />
+            <div className="flex flex-1 gap-3 w-full md:max-w-xl">
+              <div className="relative group flex-1 min-w-0">
+                <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 group-focus-within:text-primary transition-colors pointer-events-none" size={18} />
                 <input
                   type="text"
                   placeholder="Search lessons or words..."
                   value={searchText}
                   onChange={(e) => setSearchText(e.target.value)}
                   onKeyDown={handleSearchKeyDown}
-                  className="w-full pl-11 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all text-sm"
+                  className="w-full pl-11 pr-4 py-2.5 min-h-[44px] text-base md:text-sm bg-gray-50 border border-gray-200 rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary focus:bg-white outline-none transition-all"
                 />
               </div>
+              <button
+                onClick={toggleCreateModal}
+                className="hidden md:flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md hover:shadow-lg hover:scale-105 duration-200 min-h-[44px]"
+              >
+                <Plus size={18} strokeWidth={2.5} />
+                New Lesson
+              </button>
             </div>
-
-            <button
-              onClick={toggleCreateModal}
-              className="flex items-center gap-2 px-5 py-2.5 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md hover:shadow-lg hover:scale-105 duration-200"
-            >
-              <Plus size={18} strokeWidth={2.5} />
-              New Lesson
-            </button>
           </div>
         </div>
       </header>
 
-      <div className="max-w-[1600px] mx-auto px-8 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-[1fr_320px] gap-8">
-          <div>
-            <div className="flex items-center justify-between mb-6">
+      <div className="max-w-[1600px] mx-auto px-4 md:px-6 lg:px-8 py-6 md:py-8">
+        {/* Mobile: single column. Tablet: 60% list / 40% sidebar (panels side by side). Desktop: 1fr 320px (panels stacked) */}
+        <div className="grid grid-cols-1 md:grid-cols-[60%_1fr] lg:grid-cols-[1fr_320px] gap-6 md:gap-8">
+          <div className="min-w-0">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
               <div className="flex items-center gap-3">
-                <LayoutGrid size={24} className="text-gray-700" />
-                <h2 className="text-2xl font-bold text-gray-900">My Lessons</h2>
+                <LayoutGrid size={24} className="text-gray-700 shrink-0" />
+                <h2 className="text-xl md:text-2xl font-bold text-gray-900">My Lessons</h2>
               </div>
               <div className="flex items-center gap-2 text-sm text-gray-500">
                 {searchText.trim() ? (
@@ -86,7 +96,7 @@ export default function App() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {currentLessons.map((lesson) => (
                 <LessonCard
                   key={lesson.id}
@@ -110,7 +120,7 @@ export default function App() {
                 <p className="text-gray-500 mb-6">Try searching with different keywords</p>
                 <button
                   onClick={() => setSearchText('')}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all"
+                  className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] bg-gray-100 text-gray-700 font-medium rounded-xl hover:bg-gray-200 transition-all"
                 >
                   Clear Search
                 </button>
@@ -126,7 +136,7 @@ export default function App() {
                 <p className="text-gray-500 mb-6">Create your first lesson to start learning!</p>
                 <button
                   onClick={toggleCreateModal}
-                  className="inline-flex items-center gap-2 px-6 py-3 bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md"
+                  className="inline-flex items-center gap-2 px-6 py-3 min-h-[44px] bg-primary text-white font-medium rounded-xl hover:bg-primary-dark transition-all shadow-md"
                 >
                   <Plus size={18} />
                   Create Lesson
@@ -135,7 +145,7 @@ export default function App() {
             )}
           </div>
 
-          <div className="space-y-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-6 lg:space-y-6">
             <StatsPanel />
             <VocabReminder />
           </div>

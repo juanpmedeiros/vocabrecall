@@ -12,6 +12,8 @@ import {
 } from 'react';
 import type { Category, Lesson, VocabPhrase } from '@/types';
 import { MOCK_LESSONS, MOCK_VOCAB_PHRASES } from '@/constants/mockData';
+import { formatRelativeDate, normalizeSearch } from '@/utils';
+import { countTotalWords, sortLessonsByDate } from '@/utils';
 
 export type CategoryFilter = Category | 'all';
 
@@ -21,11 +23,6 @@ function buildLesson(input: Omit<Lesson, 'id'>): Lesson {
     id: crypto.randomUUID(),
     wordsCount: input.words.length,
   };
-}
-
-function formatLessonDate(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
 }
 
 const initialLessons: Lesson[] = MOCK_LESSONS.map((l) => ({
@@ -134,17 +131,17 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
   const getFilteredLessons = useCallback(() => {
     let list = lessons;
 
-    const searchLower = searchText.trim().toLowerCase();
-    if (searchLower) {
+    const searchNorm = normalizeSearch(searchText);
+    if (searchNorm) {
       list = list.filter((lesson) => {
-        if (lesson.title.toLowerCase().includes(searchLower)) return true;
-        if (lesson.category.toLowerCase().includes(searchLower)) return true;
+        if (normalizeSearch(lesson.title).includes(searchNorm)) return true;
+        if (normalizeSearch(lesson.category).includes(searchNorm)) return true;
         if (
           lesson.words.some(
             (w) =>
-              w.word.toLowerCase().includes(searchLower) ||
-              w.translation.toLowerCase().includes(searchLower) ||
-              (w.context && w.context.toLowerCase().includes(searchLower))
+              normalizeSearch(w.word).includes(searchNorm) ||
+              normalizeSearch(w.translation).includes(searchNorm) ||
+              (w.context && normalizeSearch(w.context).includes(searchNorm))
           )
         )
           return true;
@@ -156,11 +153,7 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
       list = list.filter((l) => l.category === selectedCategory);
     }
 
-    return [...list].sort((a, b) => {
-      const da = new Date(a.date).getTime();
-      const db = new Date(b.date).getTime();
-      return db - da;
-    });
+    return sortLessonsByDate(list, 'desc');
   }, [lessons, searchText, selectedCategory]);
 
   const getPaginatedLessons = useCallback(
@@ -181,19 +174,17 @@ export function VocabRecallProvider({ children }: VocabRecallProviderProps) {
   );
 
   const getTotalWords = useCallback(() => {
-    return lessons.reduce((sum, l) => sum + l.wordsCount, 0);
+    return countTotalWords(lessons);
   }, [lessons]);
 
   const getRecentLessons = useCallback(
     (limit: number) => {
-      return [...lessons]
-        .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-        .slice(0, limit);
+      return sortLessonsByDate(lessons, 'desc').slice(0, limit);
     },
     [lessons]
   );
 
-  const formatLessonDateFn = useCallback((iso: string) => formatLessonDate(iso), []);
+  const formatLessonDateFn = useCallback((iso: string) => formatRelativeDate(iso), []);
 
   const value: VocabRecallContextValue = {
     lessons,

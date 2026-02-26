@@ -248,4 +248,60 @@ Mantidos em estado local no App: `isModalOpen` (Create Lesson Modal).
 
 ---
 
-**Última atualização:** PROMPT 5 concluído. Aguardando "Próximo" para avançar.
+## PROMPT 6 — Utilitários de Formatação e Responsividade Mobile
+
+**Status:** Concluído
+
+### Parte A — Utilitários criados
+
+1. **`src/utils/date.utils.ts`**
+   - `formatDate(dateStr)` — ISO → "DD/MM/YYYY"
+   - `formatDateLong(dateStr)` — "15 de novembro de 2025" (Intl pt-BR)
+   - `formatRelativeDate(dateStr)` — "Hoje", "Ontem", "Há X dias/semanas" ou `formatDate` se &gt; 30 dias
+   - `isRecentDate(dateStr, days)` — true se dentro dos últimos N dias
+
+2. **`src/utils/string.utils.ts`**
+   - `truncate(text, maxLength)` — trunca com "..."
+   - `capitalize(text)` — primeira letra maiúscula
+   - `normalizeSearch(text)` — remove acentos, lowercase, trim (NFD + remove diacríticos)
+
+3. **`src/utils/lesson.utils.ts`**
+   - `countTotalWords(lessons)` — soma `words.length` de todas as lições
+   - `getLessonsByCategory(lessons, category)` — filtra por categoria
+   - `sortLessonsByDate(lessons, order)` — ordena por `date` (asc | desc)
+   - `getWordsForReview(lesson)` — palavras sem contexto (para revisão)
+
+4. **`src/utils/index.ts`** — Re-exporta todas as funções dos três arquivos para `import { ... } from "@/utils"`.
+
+### Integração dos utilitários
+
+- **VocabRecallContext:** `formatLessonDate` passou a usar `formatRelativeDate` (datas relativas na UI). `getFilteredLessons()` usa `normalizeSearch(searchText)` e compara com `normalizeSearch()` nos títulos, categorias e palavras — busca sem acentos. `getTotalWords()` usa `countTotalWords(lessons)`. Ordenação feita com `sortLessonsByDate(list, 'desc')`; `getRecentLessons` também usa `sortLessonsByDate`.
+- **Componentes:** Nenhuma formatação de data inline restante; datas vêm do Context já formatadas. Contagens vêm do Context (que usa os utils).
+
+### Parte B — Componentes ajustados para responsividade
+
+| Componente | Ajustes |
+|------------|--------|
+| **App.tsx** | Mobile: coluna única, padding `px-4`; tablet `px-6`, grid 60% / 40% (sidebar com StatsPanel + VocabReminder lado a lado); desktop `px-8`, grid `1fr 320px`. Sidebar: mobile stacked, tablet 2 colunas (50% cada), desktop 1 coluna. `overflow-x-hidden` no root. |
+| **Header** | Mobile: logo + botão "New Lesson" na mesma linha; busca em linha inteira abaixo. Tablet/Desktop: busca + botão na mesma linha. Input de busca `min-h-[44px]`, `text-base` no mobile (evita zoom iOS). |
+| **LessonCard** | Largura total (`w-full`), informações empilhadas; padding `p-4 md:p-5`. Menu e "View Lesson" com `min-h-[44px]` / `min-w-[44px]`. |
+| **CreateLessonModal** | Mobile: `w-full h-full`, sem bordas (padding 0 no overlay); tablet/desktop: `max-w-2xl`, `max-h-[90vh]`, `rounded-2xl`. Corpo do modal com `overflow-y-auto flex-1 min-h-0`; header e footer fixos. Inputs com `text-base` (16px). Botão fechar 44×44. |
+| **LessonDetailModal** | Mesmo padrão: mobile full viewport; md+ max-w centralizado. Área do StudyCard com `overflow-y-auto flex-1 min-h-0`. Botões de ação 44×44. |
+| **StatsPanel / VocabReminder** | Inseridos no grid do App; mobile largura total empilhados; tablet lado a lado (50% cada); desktop coluna lateral. VocabReminder: botão "Next phrase" com `min-h-[44px] min-w-[44px]`. |
+| **Pagination** | Mobile: apenas "Anterior" e "Próximo" + texto "Página X de Y"; números de página ocultos (`hidden md:flex`). Tablet/Desktop: paginação completa. Botões com `min-h-[44px]`. |
+| **StudyCard** | Mobile: container `max-w-[90vw]`; palavra principal `text-[1.55rem]` (~15% menor que 3xl); botões "Já sei" e "Revisar" em coluna (`flex-col sm:flex-row`), largura total, `min-h-[44px]`. Desktop: tamanho atual. |
+
+### Breakpoints utilizados
+
+- Base (mobile): &lt; 768px  
+- `md`: ≥ 768px (tablet)  
+- `lg`: ≥ 1280px (desktop)  
+- Larguras fluidas e `max-w`; sem `display:none` para remover navegação (elementos condicionalmente renderizados ou visíveis por breakpoint).
+
+### Build
+
+- `npm run build` executado com sucesso.
+
+---
+
+**Última atualização:** PROMPT 6 concluído. Aguardando "Próximo" para avançar.

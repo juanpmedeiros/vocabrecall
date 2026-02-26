@@ -143,9 +143,9 @@ Progresso dos prompts de refatoração:
 | ✅ | PROMPT 2: Context Global e Estado |
 | ✅ | PROMPT 3: Refatoração de Componentes |
 | ✅ | PROMPT 4: Modais com Validação e Toasts |
-| 🔄 | PROMPT 5: Lógica de Flashcard (em andamento) |
-| ⬜ | PROMPT 6: Utilitários e Formatação |
-| ⬜ | PROMPT 7: Responsividade |
+| ✅ | PROMPT 5: Lógica de Flashcard |
+| ✅ | PROMPT 6: Utilitários e Responsividade Mobile |
+| ⬜ | PROMPT 7: Responsividade (refinamentos) |
 | ⬜ | PROMPT 8: Animações e Transições |
 | ⬜ | PROMPT 9: Testes e Validação Final |
 

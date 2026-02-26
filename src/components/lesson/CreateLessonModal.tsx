@@ -180,7 +180,7 @@ export function CreateLessonModal() {
   return (
     <AnimatePresence>
       {showCreateModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-0 md:p-4">
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -195,11 +195,11 @@ export function CreateLessonModal() {
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.95, y: 20 }}
             transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
-            className="relative bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto"
+            className="relative flex flex-col w-full h-full md:h-auto md:max-h-[90vh] md:w-full md:max-w-2xl md:rounded-2xl bg-white shadow-2xl"
           >
             <div className="absolute top-0 left-0 right-0 h-1 bg-primary"></div>
 
-            <div className="flex items-center justify-between p-6 border-b border-gray-100 sticky top-0 bg-white z-10">
+            <div className="flex items-center justify-between p-4 md:p-6 border-b border-gray-100 shrink-0 bg-white z-10">
               <div className="flex items-center gap-3">
                 <div className="w-9 h-9 bg-primary rounded-lg flex items-center justify-center">
                   <Sparkles className="text-white" size={18} />
@@ -208,13 +208,13 @@ export function CreateLessonModal() {
               </div>
               <button
                 onClick={handleClose}
-                className="text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
+                className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 transition-colors hover:bg-gray-100 rounded-lg p-1.5"
               >
                 <X size={20} />
               </button>
             </div>
 
-            <div className="p-6 space-y-6">
+            <div className="p-4 md:p-6 space-y-6 overflow-y-auto flex-1 min-h-0">
               <div className="space-y-4">
                 <div>
                   <label htmlFor="lessonTitle" className="block text-sm font-semibold text-gray-700 mb-2">
@@ -226,7 +226,7 @@ export function CreateLessonModal() {
                     placeholder="e.g., Business English - Meeting Vocabulary"
                     value={lessonTitle}
                     onChange={(e) => handleTitleChange(e.target.value)}
-                    className={`w-full px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300 ${
+                    className={`w-full px-4 py-3 text-base border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all hover:border-gray-300 ${
                       errors.title ? 'border-destructive' : 'border-gray-200'
                     }`}
                   />
@@ -244,7 +244,7 @@ export function CreateLessonModal() {
                       id="category"
                       value={selectedCategory}
                       onChange={(e) => handleCategoryChange(e.target.value)}
-                      className={`flex-1 px-4 py-3 border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-gray-50 focus:bg-white ${
+                      className={`flex-1 px-4 py-3 text-base border rounded-xl focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-gray-50 focus:bg-white ${
                         errors.category ? 'border-destructive' : 'border-gray-200 hover:border-gray-300'
                       }`}
                     >
@@ -373,7 +373,7 @@ export function CreateLessonModal() {
                           placeholder="Word in English"
                           value={word.word}
                           onChange={(e) => updateWord(index, 'word', e.target.value)}
-                          className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white ${
+                          className={`w-full px-3 py-2 text-base border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-white ${
                             errors.wordByIndex?.[index] ? 'border-destructive' : 'border-gray-200'
                           }`}
                         />
@@ -386,7 +386,7 @@ export function CreateLessonModal() {
                         placeholder="Translation (PT-BR)"
                         value={word.translation}
                         onChange={(e) => updateWord(index, 'translation', e.target.value)}
-                        className={`w-full px-3 py-2 border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all text-sm bg-white ${
+                        className={`w-full px-3 py-2 text-base border rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all bg-white ${
                           errors.wordByIndex?.[index] ? 'border-destructive' : 'border-gray-200'
                         }`}
                       />
@@ -395,7 +395,7 @@ export function CreateLessonModal() {
                         placeholder="Context sentence..."
                         value={word.context}
                         onChange={(e) => updateWord(index, 'context', e.target.value)}
-                        className="w-full px-3 py-2 border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none text-sm bg-white"
+                        className="w-full px-3 py-2 text-base border border-gray-200 rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none bg-white"
                       />
                     </div>
                   ))}
@@ -410,7 +410,7 @@ export function CreateLessonModal() {
               </div>
             </div>
 
-            <div className="flex items-center justify-end gap-3 p-6 border-t border-gray-100 bg-gradient-to-b from-transparent to-gray-50/50 sticky bottom-0">
+            <div className="flex items-center justify-end gap-3 p-4 md:p-6 border-t border-gray-100 bg-gradient-to-b from-transparent to-gray-50/50 shrink-0">
               <button
                 onClick={handleClose}
                 className="px-6 py-2.5 text-sm font-semibold text-gray-700 hover:bg-gray-100 rounded-xl transition-all"

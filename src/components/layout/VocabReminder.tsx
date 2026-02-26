@@ -37,7 +37,7 @@ export function VocabReminder() {
         </div>
         <button
           onClick={handleNext}
-          className="text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg p-2 transition-all"
+          className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-primary hover:bg-blue-50 rounded-lg p-2 transition-all"
           title="Next phrase"
         >
           <RefreshCw size={16} />

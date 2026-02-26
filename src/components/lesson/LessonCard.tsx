@@ -22,16 +22,17 @@ export function LessonCard({ id, title, date, wordsCount, category }: LessonCard
   };
 
   return (
-    <div className="group bg-white rounded-xl shadow-sm hover:shadow-lg border border-gray-200/60 overflow-hidden transition-all duration-300 hover:-translate-y-1">
-      <div className="p-5 border-b border-gray-100">
-        <div className="flex items-start justify-between mb-3">
-          <span className={`inline-block px-3 py-1 rounded-md text-xs font-semibold ${data.bg} ${data.text}`}>
+    <div className="group bg-white rounded-xl shadow-sm hover:shadow-lg border border-gray-200/60 overflow-hidden transition-all duration-300 hover:-translate-y-1 w-full">
+      <div className="p-4 md:p-5 border-b border-gray-100">
+        <div className="flex items-start justify-between gap-2 mb-3">
+          <span className={`inline-block px-3 py-1 rounded-md text-xs font-semibold shrink-0 ${data.bg} ${data.text}`}>
             {category}
           </span>
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               onClick={() => setShowMenu(!showMenu)}
-              className="text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
+              className="min-h-[44px] min-w-[44px] flex items-center justify-center text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg p-1.5 transition-colors"
+              aria-label="Abrir menu"
             >
               <MoreVertical size={18} />
             </button>
@@ -81,7 +82,7 @@ export function LessonCard({ id, title, date, wordsCount, category }: LessonCard
 
           <button
             onClick={() => selectLesson(id)}
-            className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-all"
+            className="flex items-center justify-center gap-1.5 min-h-[44px] px-4 py-2 text-xs font-medium text-primary bg-blue-50 hover:bg-blue-100 rounded-lg transition-all"
           >
             <Eye size={14} />
             View Lesson
